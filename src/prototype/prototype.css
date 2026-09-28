@@ -1,34 +1,25 @@
-/* PROTOTYPE — 一次性样式。配色是占位的，四个变体共用它，
-   这样你比较的是**结构**，不是颜色。 */
+/* PROTOTYPE — 丢弃型样式。
+   结构已定（B 规格单），这一轮问的是**主题**：白色该有多「科技感」。
+   所以四个选项故意只在「处理」上分歧，不在结构上分歧——这是对
+   /prototype「变体必须结构不同」那条规矩的**有意偏离**，因为问题换了。
 
-:root {
-  --pt-bg: #101316;
-  --pt-panel: #181c21;
-  --pt-panel-2: #1f242a;
-  --pt-line: #2a3037;
-  --pt-ink: #e7ecf1;
-  --pt-ink-dim: #96a1ac;
-  --pt-ink-faint: #5b656e;
-  --pt-accent: #58a6ff;
-  --pt-skel: #2b3239;
-  --pt-mono: ui-monospace, "Cascadia Mono", "Consolas", monospace;
-}
-
-/* ---------------------------------------------------------------- 外壳 */
+   所有颜色都走令牌，令牌挂在 .pt-frame[data-theme=…] 上，
+   于是同一份结构能同时被四套装扮渲染，也才能演示「跟随系统」。 */
 
 .pt-shell {
   min-height: 100vh;
-  background: #0a0c0e;
+  background: #262b30;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px 120px;
+  padding: 24px 16px 130px;
   box-sizing: border-box;
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
 .pt-hint {
-  font: 11px/1.6 var(--pt-mono);
-  color: #4d5760;
+  font: 11px/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color: #7c858d;
   letter-spacing: 0.04em;
   margin-bottom: 10px;
 }
@@ -39,21 +30,112 @@
   width: 800px;
   height: 600px;
   overflow: auto;
-  background: var(--pt-bg);
-  color: var(--pt-ink);
-  border: 1px solid #23282e;
-  border-radius: 6px;
+  border-radius: 4px;
   font-family: "Segoe UI", system-ui, sans-serif;
   font-size: 13px;
   position: relative;
+
+  background: var(--pt-bg);
+  color: var(--pt-ink);
+  border: 1px solid var(--pt-edge, transparent);
+  background-image: var(--pt-bg-image, none);
 }
 
-/* 骨架与未知：所有变体共用这两个基元，各自决定尺寸和摆法 */
+/* ---------------------------------------------------------------- 令牌 */
+
+.pt-frame[data-theme="dark"] {
+  --pt-bg: #101316;
+  --pt-panel: #181c21;
+  --pt-panel-2: #1f242a;
+  --pt-head: #14181d;
+  --pt-line: #2a3037;
+  --pt-line-soft: #1e2429;
+  --pt-rule: #39424b;
+  --pt-ink: #e7ecf1;
+  --pt-ink-dim: #96a1ac;
+  --pt-ink-faint: #5b656e;
+  --pt-accent: #58a6ff;
+  --pt-accent-edge: #2b4a6b;
+  --pt-skel: #2b3239;
+  --pt-skel-hi: #39424b;
+  --pt-hover: #14181c;
+  --pt-edge: #23282e;
+}
+
+/* T1 蓝图 —— 冷白、冷灰细线、工业软件的蓝 */
+.pt-frame[data-theme="t1"] {
+  --pt-bg: #f7f9fc;
+  --pt-panel: #ffffff;
+  --pt-panel-2: #eef2f7;
+  --pt-head: #eaf0f7;
+  --pt-line: #c8d3df;
+  --pt-line-soft: #e3eaf2;
+  --pt-rule: #a9b8c9;
+  --pt-ink: #0e1419;
+  --pt-ink-dim: #59636f;
+  --pt-ink-faint: #96a1ad;
+  --pt-accent: #0a6ed1;
+  --pt-accent-edge: #9dc4ec;
+  --pt-skel: #dde5ee;
+  --pt-skel-hi: #eef3f9;
+  --pt-hover: #eef4fb;
+  --pt-edge: #b9c6d4;
+}
+
+/* T2 仪器 —— 纸白、暖灰、琥珀强调，像示波器面板 */
+.pt-frame[data-theme="t2"] {
+  --pt-bg: #fbfaf7;
+  --pt-panel: #ffffff;
+  --pt-panel-2: #f3f1ec;
+  --pt-head: #f0ede6;
+  --pt-line: #d6d0c4;
+  --pt-line-soft: #e8e4db;
+  --pt-rule: #bdb6a8;
+  --pt-ink: #191815;
+  --pt-ink-dim: #6a655a;
+  --pt-ink-faint: #a39d90;
+  --pt-accent: #b45309;
+  --pt-accent-edge: #e5c9a3;
+  --pt-skel: #e7e3da;
+  --pt-skel-hi: #f4f1ea;
+  --pt-hover: #f4f2ec;
+  --pt-edge: #c9c2b4;
+}
+
+/* T3 终端 —— 冷灰底 + 微网格 + 青绿强调，像监控台 */
+.pt-frame[data-theme="t3"] {
+  --pt-bg: #eef2f5;
+  --pt-panel: #ffffff;
+  --pt-panel-2: #e3eaef;
+  --pt-head: #e4ecf1;
+  --pt-line: #c6d1da;
+  --pt-line-soft: #dbe3ea;
+  --pt-rule: #a7b6c2;
+  --pt-ink: #0c1116;
+  --pt-ink-dim: #53606b;
+  --pt-ink-faint: #91a0ac;
+  --pt-accent: #0d7f74;
+  --pt-accent-edge: #93cec6;
+  --pt-skel: #d3dde4;
+  --pt-skel-hi: #e8eff4;
+  --pt-hover: #e6eef4;
+  --pt-edge: #b6c4cf;
+  --pt-bg-image: linear-gradient(
+      to right,
+      rgba(12, 17, 22, 0.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(12, 17, 22, 0.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ---------------------------------------------------------------- 基元 */
+
 .sk {
   display: inline-block;
   height: 0.85em;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--pt-skel) 0%, #39424b 50%, var(--pt-skel) 100%);
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--pt-skel) 0%, var(--pt-skel-hi) 50%, var(--pt-skel) 100%);
   background-size: 200% 100%;
   animation: sk 1.4s ease-in-out infinite;
   vertical-align: middle;
@@ -67,8 +149,57 @@
   font-style: italic;
 }
 
-/* ---------------------------------------------------------------- 变体 A
-   参考图直系：三张卡 + 两列 label/value 列表 */
+/* ================================================================ 变体 B
+   规格单：没有卡片，一张连续的、等宽的、仪表式对齐表。 */
+
+.vb {
+  padding: 0 0 24px;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12.5px;
+}
+
+.vb-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 9px;
+  padding: 13px 26px 12px;
+  background: var(--pt-head);
+  border-bottom: 2px solid var(--pt-rule);
+  line-height: 1.5;
+  font-size: 12.5px;
+}
+.vb-head b { font-weight: 700; letter-spacing: 0.01em; }
+.vb-head .sep { color: var(--pt-ink-faint); }
+
+.vb-row { display: flex; align-items: baseline; }
+.vb-row:last-child { border-bottom: none; }
+.vb-row:hover { background: var(--pt-hover); }
+
+.vb-label {
+  width: 92px;
+  flex: none;
+  text-align: right;
+  padding: 6px 16px 6px 0;
+  color: var(--pt-ink-dim);
+  border-right: 1px solid var(--pt-line-soft);
+}
+.vb-values { flex: 1; min-width: 0; padding: 6px 26px 6px 16px; }
+.vb-val { line-height: 1.55; word-break: break-word; }
+.vb-val + .vb-val { color: var(--pt-ink-dim); }
+
+/* B 解并陈：拍平成 · 分隔的一行。标称浅、实测用强调色，
+   两个数都留着，谁也没被丢掉。 */
+.vb-pair-lead { color: var(--pt-ink-dim); }
+.vb-sep { color: var(--pt-ink-faint); padding: 0 7px; }
+.vb-nominal { color: var(--pt-ink); }
+.vb-actual {
+  color: var(--pt-accent);
+  border-bottom: 1px solid var(--pt-accent-edge);
+}
+
+/* ================================================================ 变体 A
+   参考图直系：三张卡 + 两列 label/value 列表。 */
 
 .va { padding: 22px 26px 32px; }
 
@@ -85,67 +216,17 @@
 .va-card-primary { font-size: 15px; font-weight: 600; line-height: 1.35; }
 .va-card-secondary { font-size: 11px; color: var(--pt-ink-dim); margin-top: 3px; }
 
-.va-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--pt-ink-dim);
-  margin-bottom: 14px;
-}
+.va-title { font-size: 13px; font-weight: 600; color: var(--pt-ink-dim); margin-bottom: 14px; }
 
 .va-row { display: flex; align-items: baseline; margin-bottom: 9px; }
-.va-row-label {
-  width: 72px;
-  flex: none;
-  color: var(--pt-ink-dim);
-  font-size: 12.5px;
-}
+.va-row-label { width: 72px; flex: none; color: var(--pt-ink-dim); font-size: 12.5px; }
 .va-row-values { flex: 1; min-width: 0; }
 .va-val { line-height: 1.5; }
 .va-val + .va-val { margin-top: 2px; }
-
-/* 并陈：直系的解法——括号套括号，一字不改地照抄 */
 .va-val .paren-inner { color: var(--pt-ink-dim); }
 
-/* ---------------------------------------------------------------- 变体 B
-   规格单：没有卡片，一张连续的、等宽的、BIOS 式对齐表 */
-
-.vb { padding: 18px 26px 32px; font-family: var(--pt-mono); font-size: 12.5px; }
-
-.vb-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 10px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--pt-line);
-  margin-bottom: 4px;
-  line-height: 1.5;
-}
-.vb-head b { font-weight: 600; }
-.vb-head .sep { color: var(--pt-ink-faint); }
-
-.vb-row { display: flex; align-items: baseline; border-bottom: 1px solid #1e2429; }
-.vb-row:last-child { border-bottom: none; }
-.vb-row:hover { background: #14181c; }
-
-.vb-label {
-  width: 88px;
-  flex: none;
-  text-align: right;
-  padding: 6px 14px 6px 0;
-  color: var(--pt-ink-dim);
-}
-.vb-values { flex: 1; min-width: 0; padding: 6px 0; }
-.vb-val { line-height: 1.55; word-break: break-word; }
-.vb-val + .vb-val { color: var(--pt-ink-dim); }
-
-/* B 解并陈：全部拍平成 · 分隔的一行，没有嵌套 */
-.vb-pair-lead { color: var(--pt-ink-dim); }
-.vb-sep { color: var(--pt-ink-faint); padding: 0 6px; }
-.vb-nominal { color: var(--pt-ink); }
-.vb-actual { color: var(--pt-accent); }
-
-/* ---------------------------------------------------------------- 变体 C
-   两列磁贴网格：每个字段一块砖，标签是砖上的小字 */
+/* ================================================================ 变体 C
+   磁贴网格：每个字段一块砖。 */
 
 .vc { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
@@ -157,30 +238,28 @@
   min-width: 0;
 }
 .vc-tile-wide { grid-column: 1 / -1; }
-.vc-tile-label {
-  font-size: 10.5px;
-  color: var(--pt-ink-faint);
-  letter-spacing: 0.06em;
-  margin-bottom: 5px;
-}
+.vc-tile-label { font-size: 10.5px; color: var(--pt-ink-faint); letter-spacing: 0.06em; margin-bottom: 5px; }
 .vc-tile-val { font-size: 12.5px; line-height: 1.5; word-break: break-word; }
-.vc-tile-val + .vc-tile-val { margin-top: 4px; padding-top: 4px; border-top: 1px dashed #232a30; }
+.vc-tile-val + .vc-tile-val {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--pt-line-soft);
+}
 
-/* C 解并陈：两枚并排的徽标，谁是谁一目了然 */
 .vc-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: baseline; }
 .vc-badge {
-  font-family: var(--pt-mono);
+  font-family: ui-monospace, Consolas, monospace;
   font-size: 11.5px;
   padding: 1px 6px;
   border-radius: 3px;
   background: var(--pt-panel-2);
   border: 1px solid var(--pt-line);
 }
-.vc-badge.actual { color: var(--pt-accent); border-color: #2b4a6b; }
+.vc-badge.actual { color: var(--pt-accent); border-color: var(--pt-accent-edge); }
 .vc-lead { font-size: 11.5px; color: var(--pt-ink-dim); margin-top: 6px; }
 
-/* ---------------------------------------------------------------- 变体 D
-   单列大卡：一个字段一张卡，值最大、密度最低 */
+/* ================================================================ 变体 D
+   单列大卡：一个字段一张卡。 */
 
 .vd { padding: 16px 20px 32px; }
 
@@ -188,7 +267,7 @@
   display: flex;
   gap: 26px;
   padding: 12px 14px;
-  background: var(--pt-panel);
+  background: var(--pt-head);
   border: 1px solid var(--pt-line);
   border-radius: 5px;
   margin-bottom: 12px;
@@ -206,21 +285,15 @@
   margin-bottom: 7px;
   background: var(--pt-panel);
 }
-.vd-card-label {
-  font-size: 10.5px;
-  color: var(--pt-ink-faint);
-  letter-spacing: 0.08em;
-  margin-bottom: 6px;
-}
+.vd-card-label { font-size: 10.5px; color: var(--pt-ink-faint); letter-spacing: 0.08em; margin-bottom: 6px; }
 .vd-card-val { font-size: 14px; line-height: 1.45; word-break: break-word; }
-.vd-card-val + .vd-card-val { margin-top: 7px; padding-top: 7px; border-top: 1px solid #232a30; }
+.vd-card-val + .vd-card-val { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--pt-line-soft); }
 
-/* D 解并陈：标称当主角、实测做脚注 */
 .vd-big { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
-.vd-sub { font-size: 11.5px; color: var(--pt-accent); font-family: var(--pt-mono); margin-top: 2px; }
+.vd-sub { font-size: 11.5px; color: var(--pt-accent); font-family: ui-monospace, Consolas, monospace; margin-top: 2px; }
 .vd-lead { font-size: 11.5px; color: var(--pt-ink-dim); margin-top: 6px; }
 
-/* ---------------------------------------------------------------- 切换器 */
+/* ================================================================ 切换器 */
 
 .pt-bar {
   position: fixed;
@@ -233,7 +306,7 @@
   gap: 8px;
   align-items: stretch;
   max-width: calc(100vw - 24px);
-  font-family: var(--pt-mono);
+  font-family: ui-monospace, Consolas, monospace;
   font-size: 12px;
   z-index: 9999;
 }
@@ -248,7 +321,6 @@
   overflow: hidden;
   user-select: none;
 }
-
 .pt-pill button {
   all: unset;
   padding: 9px 13px;
