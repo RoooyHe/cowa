@@ -1,0 +1,275 @@
+/* PROTOTYPE — 一次性样式。配色是占位的，四个变体共用它，
+   这样你比较的是**结构**，不是颜色。 */
+
+:root {
+  --pt-bg: #101316;
+  --pt-panel: #181c21;
+  --pt-panel-2: #1f242a;
+  --pt-line: #2a3037;
+  --pt-ink: #e7ecf1;
+  --pt-ink-dim: #96a1ac;
+  --pt-ink-faint: #5b656e;
+  --pt-accent: #58a6ff;
+  --pt-skel: #2b3239;
+  --pt-mono: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+}
+
+/* ---------------------------------------------------------------- 外壳 */
+
+.pt-shell {
+  min-height: 100vh;
+  background: #0a0c0e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 120px;
+  box-sizing: border-box;
+}
+
+.pt-hint {
+  font: 11px/1.6 var(--pt-mono);
+  color: #4d5760;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+/* 800×600 = tauri.conf.json 里那个默认窗口。内容溢出会出滚动条——
+   滚动条本身就是结论：图纸装不下。 */
+.pt-frame {
+  width: 800px;
+  height: 600px;
+  overflow: auto;
+  background: var(--pt-bg);
+  color: var(--pt-ink);
+  border: 1px solid #23282e;
+  border-radius: 6px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  position: relative;
+}
+
+/* 骨架与未知：所有变体共用这两个基元，各自决定尺寸和摆法 */
+.sk {
+  display: inline-block;
+  height: 0.85em;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--pt-skel) 0%, #39424b 50%, var(--pt-skel) 100%);
+  background-size: 200% 100%;
+  animation: sk 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+@keyframes sk {
+  0%   { background-position: 120% 0; }
+  100% { background-position: -80% 0; }
+}
+.unk {
+  color: var(--pt-ink-faint);
+  font-style: italic;
+}
+
+/* ---------------------------------------------------------------- 变体 A
+   参考图直系：三张卡 + 两列 label/value 列表 */
+
+.va { padding: 22px 26px 32px; }
+
+.va-cards { display: flex; gap: 12px; margin-bottom: 26px; }
+.va-card {
+  flex: 1;
+  background: var(--pt-panel);
+  border: 1px solid var(--pt-line);
+  border-radius: 6px;
+  padding: 11px 13px 13px;
+  min-width: 0;
+}
+.va-card-label { font-size: 11px; color: var(--pt-ink-dim); margin-bottom: 9px; }
+.va-card-primary { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.va-card-secondary { font-size: 11px; color: var(--pt-ink-dim); margin-top: 3px; }
+
+.va-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pt-ink-dim);
+  margin-bottom: 14px;
+}
+
+.va-row { display: flex; align-items: baseline; margin-bottom: 9px; }
+.va-row-label {
+  width: 72px;
+  flex: none;
+  color: var(--pt-ink-dim);
+  font-size: 12.5px;
+}
+.va-row-values { flex: 1; min-width: 0; }
+.va-val { line-height: 1.5; }
+.va-val + .va-val { margin-top: 2px; }
+
+/* 并陈：直系的解法——括号套括号，一字不改地照抄 */
+.va-val .paren-inner { color: var(--pt-ink-dim); }
+
+/* ---------------------------------------------------------------- 变体 B
+   规格单：没有卡片，一张连续的、等宽的、BIOS 式对齐表 */
+
+.vb { padding: 18px 26px 32px; font-family: var(--pt-mono); font-size: 12.5px; }
+
+.vb-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--pt-line);
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+.vb-head b { font-weight: 600; }
+.vb-head .sep { color: var(--pt-ink-faint); }
+
+.vb-row { display: flex; align-items: baseline; border-bottom: 1px solid #1e2429; }
+.vb-row:last-child { border-bottom: none; }
+.vb-row:hover { background: #14181c; }
+
+.vb-label {
+  width: 88px;
+  flex: none;
+  text-align: right;
+  padding: 6px 14px 6px 0;
+  color: var(--pt-ink-dim);
+}
+.vb-values { flex: 1; min-width: 0; padding: 6px 0; }
+.vb-val { line-height: 1.55; word-break: break-word; }
+.vb-val + .vb-val { color: var(--pt-ink-dim); }
+
+/* B 解并陈：全部拍平成 · 分隔的一行，没有嵌套 */
+.vb-pair-lead { color: var(--pt-ink-dim); }
+.vb-sep { color: var(--pt-ink-faint); padding: 0 6px; }
+.vb-nominal { color: var(--pt-ink); }
+.vb-actual { color: var(--pt-accent); }
+
+/* ---------------------------------------------------------------- 变体 C
+   两列磁贴网格：每个字段一块砖，标签是砖上的小字 */
+
+.vc { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.vc-tile {
+  background: var(--pt-panel);
+  border: 1px solid var(--pt-line);
+  border-radius: 5px;
+  padding: 9px 11px 10px;
+  min-width: 0;
+}
+.vc-tile-wide { grid-column: 1 / -1; }
+.vc-tile-label {
+  font-size: 10.5px;
+  color: var(--pt-ink-faint);
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
+}
+.vc-tile-val { font-size: 12.5px; line-height: 1.5; word-break: break-word; }
+.vc-tile-val + .vc-tile-val { margin-top: 4px; padding-top: 4px; border-top: 1px dashed #232a30; }
+
+/* C 解并陈：两枚并排的徽标，谁是谁一目了然 */
+.vc-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: baseline; }
+.vc-badge {
+  font-family: var(--pt-mono);
+  font-size: 11.5px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--pt-panel-2);
+  border: 1px solid var(--pt-line);
+}
+.vc-badge.actual { color: var(--pt-accent); border-color: #2b4a6b; }
+.vc-lead { font-size: 11.5px; color: var(--pt-ink-dim); margin-top: 6px; }
+
+/* ---------------------------------------------------------------- 变体 D
+   单列大卡：一个字段一张卡，值最大、密度最低 */
+
+.vd { padding: 16px 20px 32px; }
+
+.vd-strip {
+  display: flex;
+  gap: 26px;
+  padding: 12px 14px;
+  background: var(--pt-panel);
+  border: 1px solid var(--pt-line);
+  border-radius: 5px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.vd-strip-item { min-width: 0; }
+.vd-strip-label { font-size: 10.5px; color: var(--pt-ink-faint); margin-bottom: 3px; }
+.vd-strip-val { font-size: 14px; font-weight: 600; }
+.vd-strip-sub { font-size: 10.5px; color: var(--pt-ink-dim); margin-top: 2px; }
+
+.vd-card {
+  border: 1px solid var(--pt-line);
+  border-radius: 5px;
+  padding: 11px 14px 13px;
+  margin-bottom: 7px;
+  background: var(--pt-panel);
+}
+.vd-card-label {
+  font-size: 10.5px;
+  color: var(--pt-ink-faint);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.vd-card-val { font-size: 14px; line-height: 1.45; word-break: break-word; }
+.vd-card-val + .vd-card-val { margin-top: 7px; padding-top: 7px; border-top: 1px solid #232a30; }
+
+/* D 解并陈：标称当主角、实测做脚注 */
+.vd-big { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.vd-sub { font-size: 11.5px; color: var(--pt-accent); font-family: var(--pt-mono); margin-top: 2px; }
+.vd-lead { font-size: 11.5px; color: var(--pt-ink-dim); margin-top: 6px; }
+
+/* ---------------------------------------------------------------- 切换器 */
+
+.pt-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  align-items: stretch;
+  max-width: calc(100vw - 24px);
+  font-family: var(--pt-mono);
+  font-size: 12px;
+  z-index: 9999;
+}
+
+.pt-pill {
+  display: flex;
+  align-items: center;
+  background: #e7ecf1;
+  color: #101316;
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  user-select: none;
+}
+
+.pt-pill button {
+  all: unset;
+  padding: 9px 13px;
+  cursor: pointer;
+  font: inherit;
+  color: #101316;
+  line-height: 1;
+}
+.pt-pill button:hover { background: #cdd6df; }
+.pt-pill .pt-label {
+  padding: 9px 6px;
+  text-align: center;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.pt-pill .pt-tag {
+  padding: 9px 12px;
+  background: #101316;
+  color: #8b949e;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+}
