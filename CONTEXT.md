@@ -70,6 +70,10 @@ _Avoid_: 无、不适用、N/A、—、空着
 图吧工具箱式的做法——主屏幕只是一排第三方小工具（CPU-Z、GPU-Z、CrystalDiskInfo 等）的按钮，参数由那些外部程序去读。**cowa 不做这个。**
 _Avoid_: 把「硬件概览」也叫成「工具箱」
 
+**手动切换主题（Manual Theme Toggle）**：
+不做。主题纯跟随系统（`prefers-color-scheme`），屏上不出现任何切换控件，也不出现快捷键——那会是 `硬件概览` 上的第一个可点元素。见 `docs/adr/0005`。
+_Avoid_: 主题开关、小太阳、深色模式按钮
+
 **不提权（No Elevation）**：
 cowa 从不要求管理员权限。需要提权才能读到的字段**直接算作拿不到**——硬盘通电时间就是这样没的（`Get-StorageReliabilityCounter` 访问拒绝）。一个零交互的信息应用不该为一个字段弹 UAC。
 _Avoid_: 以管理员身份运行、提权、UAC、以管理员重试
