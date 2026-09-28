@@ -47,7 +47,7 @@ function writeParam(key: string, value: string) {
 
 export default function PrototypeApp() {
   const [variant, setVariant] = useState(() => readParam("variant", "B").toUpperCase());
-  const [theme, setTheme] = useState(() => readParam("theme", "t1"));
+  const [theme, setTheme] = useState(() => readParam("theme", "t3"));
   const [phase, setPhase] = useState<Phase>(() => {
     const p = readParam("phase", "loaded");
     return isPhase(p) ? p : "loaded";
@@ -67,7 +67,7 @@ export default function PrototypeApp() {
   useEffect(() => {
     const onPop = () => {
       setVariant(readParam("variant", "B").toUpperCase());
-      setTheme(readParam("theme", "t1"));
+      setTheme(readParam("theme", "t3"));
       const p = readParam("phase", "loaded");
       setPhase(isPhase(p) ? p : "loaded");
     };
