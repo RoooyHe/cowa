@@ -1,0 +1,100 @@
+
+### B 的判据实测：PNPDeviceID 以 ROOT / SWD / SW\ / { / BTH 开头的算虚拟
+[Win32_NetworkAdapter]  全部 19  ->  留下 1
+    drop  Hyper-V Virtual Switch Extension Adapter   <ROOT\VMS_VSMP\0000>
+    drop  Hyper-V Virtual Switch Extension Adapter   <ROOT\VMS_VSMP\0003>
+    drop  Microsoft Kernel Debug Network Adapter   <ROOT\KDNIC\0000>
+    KEEP  Intel(R) Wireless-AC 9560 160MHz   <PCI\VEN_8086&DEV_9DF0&SUBSYS_20348086&REV_30\3&11583659&0&A3>
+    drop  Microsoft Wi-Fi Direct Virtual Adapter #4   <{5D624F94-8850-40C3-A3FA-A4FD2080BAF3}\VWIFIMP_WFD\4&248BE523&3&11>
+    drop  Bluetooth Device (Personal Area Network)   <BTH\MS_BTHPAN\6&2822B1F2&0&2>
+    drop  Microsoft Wi-Fi Direct Virtual Adapter #5   <{5D624F94-8850-40C3-A3FA-A4FD2080BAF3}\VWIFIMP_WFD\4&248BE523&3&12>
+    drop  WAN Miniport (SSTP)   <SWD\MSRRAS\MS_SSTPMINIPORT>
+    drop  WAN Miniport (IKEv2)   <SWD\MSRRAS\MS_AGILEVPNMINIPORT>
+    drop  WAN Miniport (L2TP)   <SWD\MSRRAS\MS_L2TPMINIPORT>
+    drop  WAN Miniport (PPTP)   <SWD\MSRRAS\MS_PPTPMINIPORT>
+    drop  WAN Miniport (PPPOE)   <SWD\MSRRAS\MS_PPPOEMINIPORT>
+    drop  WAN Miniport (IP)   <SWD\MSRRAS\MS_NDISWANIP>
+    drop  WAN Miniport (IPv6)   <SWD\MSRRAS\MS_NDISWANIPV6>
+    drop  WAN Miniport (Network Monitor)   <SWD\MSRRAS\MS_NDISWANBH>
+    drop  Hyper-V Virtual Switch Extension Adapter   <ROOT\VMS_VSMP\0001>
+    drop  Hyper-V Virtual Ethernet Adapter #2   <ROOT\VMS_MP\0000>
+    drop  Hyper-V Virtual Switch Extension Adapter   <ROOT\VMS_VSMP\0002>
+    drop  Hyper-V Virtual Ethernet Adapter #3   <ROOT\VMS_MP\0001>
+[Win32_VideoController]  全部 3  ->  留下 3
+    KEEP  Intel(R) UHD Graphics 620   <PCI\VEN_8086&DEV_3EA0&SUBSYS_3E0C19E5&REV_02\3&11583659&0&10>
+    KEEP  NVIDIA GeForce MX250   <PCI\VEN_10DE&DEV_1D13&SUBSYS_3E0C19E5&REV_A1\4&404F1B3&0&00E4>
+    KEEP  Virtual Display Device   <INDIRECTDSP\VIRTUALDISPLAYDRIVER\1&79F5D87&0&01>
+[Win32_SoundDevice]  全部 3  ->  留下 2
+    KEEP  Realtek High Definition Audio   <INTELAUDIO\FUNC_01&VEN_10EC&DEV_0256&SUBSYS_19E53218&REV_1000\4&3817C44E&0&0001>
+    drop  NVIDIA Virtual Audio Device (Wave Extensible) (WDM)   <ROOT\UNNAMED_DEVICE\0000>
+    KEEP  英特尔(R) 显示器音频   <INTELAUDIO\FUNC_01&VEN_8086&DEV_280B&SUBSYS_80860101&REV_1000\4&3817C44E&0&0201>
+[Win32_DesktopMonitor]  全部 3  ->  留下 1
+    KEEP  Huawei PnP Monitor   <DISPLAY\CMN1604\4&9FB62F5&1&UID265988>
+    drop  默认监视器   <>
+    drop  默认监视器   <>
+[Win32_DiskDrive]  全部 1  ->  留下 1
+    KEEP  WDC PC SN730 SDBPNTY-512G-1027   <SCSI\DISK&VEN_NVME&PROD_WDC_PC_SN730_SDB\5&260F40B1&0&000000>
+
+### 只排除 ROOT / SWD / { 三项时，网卡剩什么（BTH 不排除）
+    Intel(R) Wireless-AC 9560 160MHz  <PCI\VEN_8086&DEV_9DF0&SUBSYS_20348086&REV_30\3&11583659&0&A3>
+    Bluetooth Device (Personal Area Network)  <BTH\MS_BTHPAN\6&2822B1F2&0&2>
+
+### WMI 现成的判据：Win32_NetworkAdapter.PhysicalAdapter
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  Hyper-V Virtual Switch Extension Adapter
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  Hyper-V Virtual Switch Extension Adapter
+    PhysicalAdapter=False  AdapterTypeID=  NetEnabled=  Microsoft Kernel Debug Network Adapter
+    PhysicalAdapter=True  AdapterTypeID=0  NetEnabled=True  Intel(R) Wireless-AC 9560 160MHz
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  Microsoft Wi-Fi Direct Virtual Adapter #4
+    PhysicalAdapter=True  AdapterTypeID=0  NetEnabled=False  Bluetooth Device (Personal Area Network)
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  Microsoft Wi-Fi Direct Virtual Adapter #5
+    PhysicalAdapter=False  AdapterTypeID=  NetEnabled=  WAN Miniport (SSTP)
+    PhysicalAdapter=False  AdapterTypeID=  NetEnabled=  WAN Miniport (IKEv2)
+    PhysicalAdapter=False  AdapterTypeID=  NetEnabled=  WAN Miniport (L2TP)
+    PhysicalAdapter=False  AdapterTypeID=  NetEnabled=  WAN Miniport (PPTP)
+    PhysicalAdapter=False  AdapterTypeID=  NetEnabled=  WAN Miniport (PPPOE)
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  WAN Miniport (IP)
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  WAN Miniport (IPv6)
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  WAN Miniport (Network Monitor)
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  Hyper-V Virtual Switch Extension Adapter
+    PhysicalAdapter=True  AdapterTypeID=0  NetEnabled=True  Hyper-V Virtual Ethernet Adapter #2
+    PhysicalAdapter=False  AdapterTypeID=0  NetEnabled=  Hyper-V Virtual Switch Extension Adapter
+    PhysicalAdapter=True  AdapterTypeID=0  NetEnabled=True  Hyper-V Virtual Ethernet Adapter #3
+    => PhysicalAdapter=true 合计 4 块
+       Intel(R) Wireless-AC 9560 160MHz  NetConnectionID=WLAN
+       Bluetooth Device (Personal Area Network)  NetConnectionID=蓝牙网络连接
+       Hyper-V Virtual Ethernet Adapter #2  NetConnectionID=vEthernet (VPNNet)
+       Hyper-V Virtual Ethernet Adapter #3  NetConnectionID=vEthernet (NATNet)
+
+### Win32_PnPEntity 作通用判据？
+    总数 = 194
+    [MEDIA] Microsoft 流服务代理   <SW\{96E080C7-143C-11D1-B40F-00A0C9223196}\{3C0D501A-140B-11D1-B40F-00A0C9223196}>
+    [Net] WAN Miniport (PPPOE)   <SWD\MSRRAS\MS_PPPOEMINIPORT>
+    [Net] Hyper-V Virtual Switch Extension Adapter   <ROOT\VMS_VSMP\0000>
+    [Net] Hyper-V Virtual Switch Extension Adapter #2   <ROOT\VMS_VSMP\0001>
+    [Net] Hyper-V Virtual Switch Extension Adapter #3   <ROOT\VMS_VSMP\0002>
+    [Net] Hyper-V Virtual Switch Extension Adapter #4   <ROOT\VMS_VSMP\0003>
+    [Net] Bluetooth Device (Personal Area Network)   <BTH\MS_BTHPAN\6&2822B1F2&0&2>
+    [MEDIA] 瀚海   <BTHENUM\{0000110B-0000-1000-8000-00805F9B34FB}_VID&0001004C_PID&2013\7&615ECA&2&342840DE907A_C00000000>
+    [Net] WAN Miniport (PPTP)   <SWD\MSRRAS\MS_PPTPMINIPORT>
+    [Net] WAN Miniport (IKEv2)   <SWD\MSRRAS\MS_AGILEVPNMINIPORT>
+    [Net] Microsoft Kernel Debug Network Adapter   <ROOT\KDNIC\0000>
+    [Monitor] Huawei PnP Monitor   <DISPLAY\CMN1604\4&9FB62F5&1&UID265988>
+    [Monitor] Generic Monitor (Redmi 215 NF)   <DISPLAY\XMIA011\4&9FB62F5&1&UID198171>
+    [MEDIA] Realtek(R) Audio   <INTELAUDIO\FUNC_01&VEN_10EC&DEV_0256&SUBSYS_19E53218&REV_1000\4&3817C44E&0&0001>
+    [Net] WAN Miniport (Network Monitor)   <SWD\MSRRAS\MS_NDISWANBH>
+    [Net] WAN Miniport (IP)   <SWD\MSRRAS\MS_NDISWANIP>
+    [Display] Intel(R) UHD Graphics 620   <PCI\VEN_8086&DEV_3EA0&SUBSYS_3E0C19E5&REV_02\3&11583659&0&10>
+    [Net] Intel(R) Wireless-AC 9560 160MHz   <PCI\VEN_8086&DEV_9DF0&SUBSYS_20348086&REV_30\3&11583659&0&A3>
+    [Net] WAN Miniport (SSTP)   <SWD\MSRRAS\MS_SSTPMINIPORT>
+    [MEDIA] 瀚海 Hands-Free   <BTHHFENUM\BTHHFPAUDIO\8&258238E3&0&97>
+    [DiskDrive] WDC PC SN730 SDBPNTY-512G-1027   <SCSI\DISK&VEN_NVME&PROD_WDC_PC_SN730_SDB\5&260F40B1&0&000000>
+    [MEDIA] NVIDIA Virtual Audio Device (Wave Extensible) (WDM)   <ROOT\UNNAMED_DEVICE\0000>
+    [Net] Hyper-V Virtual Ethernet Adapter #2   <ROOT\VMS_MP\0000>
+    [Net] Hyper-V Virtual Ethernet Adapter #3   <ROOT\VMS_MP\0001>
+    [Net] Microsoft Wi-Fi Direct Virtual Adapter #4   <{5D624F94-8850-40C3-A3FA-A4FD2080BAF3}\VWIFIMP_WFD\4&248BE523&3&11>
+    [Net] Microsoft Wi-Fi Direct Virtual Adapter #5   <{5D624F94-8850-40C3-A3FA-A4FD2080BAF3}\VWIFIMP_WFD\4&248BE523&3&12>
+    [Display] NVIDIA GeForce MX250   <PCI\VEN_10DE&DEV_1D13&SUBSYS_3E0C19E5&REV_A1\4&404F1B3&0&00E4>
+    [MEDIA] 英特尔(R) 显示器音频   <INTELAUDIO\FUNC_01&VEN_8086&DEV_280B&SUBSYS_80860101&REV_1000\4&3817C44E&0&0201>
+    [Net] WAN Miniport (IPv6)   <SWD\MSRRAS\MS_NDISWANIPV6>
+    [Display] Virtual Display Device   <INDIRECTDSP\VIRTUALDISPLAYDRIVER\1&79F5D87&0&01>
+    [Net] WAN Miniport (L2TP)   <SWD\MSRRAS\MS_L2TPMINIPORT>

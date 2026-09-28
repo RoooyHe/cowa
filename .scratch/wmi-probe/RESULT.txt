@@ -1,0 +1,502 @@
+$ pwsh -NoProfile -File .scratch/wmi-probe/probe.ps1
+
+==============================================================================
+  cowa · WMI 可行性探针  (PROTOTYPE — 用完即删)
+==============================================================================
+  机器      : DREAM
+  时间      : 2026-09-28 13:27:06
+  PowerShell: 7.6.6
+  管理员    : False
+  查询上限  : 3 秒（模拟）
+
+==============================================================================
+  1. 顶行三张卡
+==============================================================================
+
+  [型号信息 ← 设备型号]  root/cimv2:Win32_ComputerSystem
+      -> 1 实例  |  230 ms  |  OK
+      查询耗时                       230 ms
+      Name                       DREAM
+      Manufacturer               HUAWEI
+      Model                      HBL-WX9
+      SystemType                 x64-based PC
+      PCSystemType               2
+      TotalPhysicalMemory        17018114048
+      NumberOfProcessors         1
+
+  [型号信息 备用（SMBIOS 产品名）]  root/cimv2:Win32_ComputerSystemProduct
+      -> 1 实例  |  9 ms  |  OK
+      查询耗时                       9 ms
+      Vendor                     HUAWEI
+      Name                       HBL-WX9
+      Version                    M1130
+      IdentifyingNumber          <已抹除>
+
+  [系统信息 ← OS 版本 + 位数]  root/cimv2:Win32_OperatingSystem
+      -> 1 实例  |  83 ms  |  OK
+      查询耗时                       83 ms
+      Caption                    Microsoft Windows 11 专业版
+      Version                    10.0.26200
+      BuildNumber                26200
+      OSArchitecture             64 位
+      LastBootUpTime             2026/9/20 16:29:00
+      InstallDate                2026/9/10 8:57:33
+
+==============================================================================
+  2. 详细信息的行 —— 单值
+==============================================================================
+
+  [处理器]  root/cimv2:Win32_Processor
+      -> 1 实例  |  1295 ms  |  OK
+      查询耗时                       1295 ms
+      Name                       Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz
+      Manufacturer               GenuineIntel
+      MaxClockSpeed              1800
+      CurrentClockSpeed          1800
+      NumberOfCores              4
+      NumberOfLogicalProcessors  8
+
+  [主板]  root/cimv2:Win32_BaseBoard
+      -> 1 实例  |  8 ms  |  OK
+      查询耗时                       8 ms
+      Manufacturer               HUAWEI
+      Product                    HBL-WX9-PCB
+      Version                    M1130
+      SerialNumber               <已抹除>
+
+  [BIOS]  root/cimv2:Win32_BIOS
+      -> 1 实例  |  9 ms  |  OK
+      查询耗时                       9 ms
+      Manufacturer               HUAWEI
+      SMBIOSBIOSVersion          1.21
+      ReleaseDate                2021/7/29 8:00:00
+      Version                    HUAWEI - 2
+
+==============================================================================
+  3. 详细信息的行 —— 多值
+==============================================================================
+
+  [内存（逐条）]  root/cimv2:Win32_PhysicalMemory
+      -> 2 实例  |  10 ms  |  OK
+      查询耗时                       10 ms
+      -- 实例 #1 --
+      Manufacturer               Samsung
+      Capacity                   8589934592
+      Speed                      2400
+      ConfiguredClockSpeed       2400
+      PartNumber                 K4AAG165WB-MCRC     
+      DeviceLocator              ChannelA-DIMM0
+      BankLabel                  BANK 0
+      SMBIOSMemoryType           26
+      FormFactor                 0
+      -- 实例 #2 --
+      Manufacturer               Samsung
+      Capacity                   8589934592
+      Speed                      2400
+      ConfiguredClockSpeed       2400
+      PartNumber                 K4AAG165WB-MCRC     
+      DeviceLocator              ChannelB-DIMM0
+      BankLabel                  BANK 2
+      SMBIOSMemoryType           26
+      FormFactor                 0
+
+  [内存 备用（合计/插槽）]  root/cimv2:Win32_PhysicalMemoryArray
+      -> 1 实例  |  9 ms  |  OK
+      查询耗时                       9 ms
+      MemoryDevices              2
+      MaxCapacityEx              33554432
+      MemoryErrorCorrection      3
+
+  [显卡（逐块）]  root/cimv2:Win32_VideoController
+      -> 3 实例  |  34 ms  |  OK
+      查询耗时                       34 ms
+      -- 实例 #1 --
+      Name                       Intel(R) UHD Graphics 620
+      AdapterCompatibility       Intel Corporation
+      AdapterRAM                 1073741824
+      DriverVersion              27.20.100.8984
+      VideoProcessor             Intel(R) UHD Graphics Family
+      CurrentHorizontalResolution 1920
+      CurrentVerticalResolution  1080
+      CurrentRefreshRate         60
+      PNPDeviceID                PCI\VEN_8086&DEV_3EA0&SUBSYS_3E0C19E5&REV_02\3&11583659&0&10
+      -- 实例 #2 --
+      Name                       NVIDIA GeForce MX250
+      AdapterCompatibility       NVIDIA
+      AdapterRAM                 2147483648
+      DriverVersion              32.0.15.7247
+      VideoProcessor             NVIDIA GeForce MX250
+      CurrentHorizontalResolution <空>
+      CurrentVerticalResolution  <空>
+      CurrentRefreshRate         <空>
+      PNPDeviceID                PCI\VEN_10DE&DEV_1D13&SUBSYS_3E0C19E5&REV_A1\4&404F1B3&0&00E4
+      -- 实例 #3 --
+      Name                       Virtual Display Device
+      AdapterCompatibility       Huawei
+      AdapterRAM                 <空>
+      DriverVersion              1.0.0.8
+      VideoProcessor             <空>
+      CurrentHorizontalResolution <空>
+      CurrentVerticalResolution  <空>
+      CurrentRefreshRate         <空>
+      PNPDeviceID                INDIRECTDSP\VIRTUALDISPLAYDRIVER\1&79F5D87&0&01
+
+  [显示器（Win32_DesktopMonitor）]  root/cimv2:Win32_DesktopMonitor
+      -> 3 实例  |  20 ms  |  OK
+      查询耗时                       20 ms
+      -- 实例 #1 --
+      Name                       Huawei PnP Monitor
+      ScreenWidth                1920
+      ScreenHeight               1080
+      MonitorManufacturer        Huawei
+      PNPDeviceID                DISPLAY\CMN1604\4&9FB62F5&1&UID265988
+      Availability               3
+      -- 实例 #2 --
+      Name                       默认监视器
+      ScreenWidth                1920
+      ScreenHeight               1080
+      MonitorManufacturer        <空>
+      PNPDeviceID                <空>
+      Availability               3
+      -- 实例 #3 --
+      Name                       默认监视器
+      ScreenWidth                <空>
+      ScreenHeight               <空>
+      MonitorManufacturer        <空>
+      PNPDeviceID                <空>
+      Availability               8
+
+  [磁盘（逐块）]  root/cimv2:Win32_DiskDrive
+      -> 1 实例  |  12 ms  |  OK
+      查询耗时                       12 ms
+      Model                      WDC PC SN730 SDBPNTY-512G-1027
+      Size                       512105932800
+      InterfaceType              SCSI
+      MediaType                  Fixed hard disk media
+      Partitions                 3
+      PNPDeviceID                SCSI\DISK&VEN_NVME&PROD_WDC_PC_SN730_SDB\5&260F40B1&0&000000
+
+  [声卡（逐个）]  root/cimv2:Win32_SoundDevice
+      -> 3 实例  |  16 ms  |  OK
+      查询耗时                       16 ms
+      -- 实例 #1 --
+      Name                       Realtek High Definition Audio
+      Manufacturer               Realtek
+      Status                     OK
+      -- 实例 #2 --
+      Name                       NVIDIA Virtual Audio Device (Wave Extensible) (WDM)
+      Manufacturer               NVIDIA
+      Status                     OK
+      -- 实例 #3 --
+      Name                       英特尔(R) 显示器音频
+      Manufacturer               Intel(R) Corporation
+      Status                     OK
+
+  [网卡（逐个）]  root/cimv2:Win32_NetworkAdapter
+      -> 19 实例  |  194 ms  |  OK
+      查询耗时                       194 ms
+      -- 实例 #1 --
+      Name                       Hyper-V Virtual Switch Extension Adapter
+      AdapterType                以太网 802.3
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                ROOT\VMS_VSMP\0000
+      -- 实例 #2 --
+      Name                       Hyper-V Virtual Switch Extension Adapter
+      AdapterType                以太网 802.3
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                ROOT\VMS_VSMP\0003
+      -- 实例 #3 --
+      Name                       Microsoft Kernel Debug Network Adapter
+      AdapterType                <空>
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                ROOT\KDNIC\0000
+      -- 实例 #4 --
+      Name                       Intel(R) Wireless-AC 9560 160MHz
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      667350000
+      NetConnectionID            WLAN
+      NetEnabled                 True
+      PNPDeviceID                PCI\VEN_8086&DEV_9DF0&SUBSYS_20348086&REV_30\3&11583659&0&A3
+      -- 实例 #5 --
+      Name                       Microsoft Wi-Fi Direct Virtual Adapter #4
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      9223372036854775807
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                {5D624F94-8850-40C3-A3FA-A4FD2080BAF3}\VWIFIMP_WFD\4&248BE523&3&11
+      -- 实例 #6 --
+      Name                       Bluetooth Device (Personal Area Network)
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      3000000
+      NetConnectionID            蓝牙网络连接
+      NetEnabled                 False
+      PNPDeviceID                BTH\MS_BTHPAN\6&2822B1F2&0&2
+      -- 实例 #7 --
+      Name                       Microsoft Wi-Fi Direct Virtual Adapter #5
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      9223372036854775807
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                {5D624F94-8850-40C3-A3FA-A4FD2080BAF3}\VWIFIMP_WFD\4&248BE523&3&12
+      -- 实例 #8 --
+      Name                       WAN Miniport (SSTP)
+      AdapterType                <空>
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_SSTPMINIPORT
+      -- 实例 #9 --
+      Name                       WAN Miniport (IKEv2)
+      AdapterType                <空>
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_AGILEVPNMINIPORT
+      -- 实例 #10 --
+      Name                       WAN Miniport (L2TP)
+      AdapterType                <空>
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_L2TPMINIPORT
+      -- 实例 #11 --
+      Name                       WAN Miniport (PPTP)
+      AdapterType                <空>
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_PPTPMINIPORT
+      -- 实例 #12 --
+      Name                       WAN Miniport (PPPOE)
+      AdapterType                <空>
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_PPPOEMINIPORT
+      -- 实例 #13 --
+      Name                       WAN Miniport (IP)
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_NDISWANIP
+      -- 实例 #14 --
+      Name                       WAN Miniport (IPv6)
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_NDISWANIPV6
+      -- 实例 #15 --
+      Name                       WAN Miniport (Network Monitor)
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                SWD\MSRRAS\MS_NDISWANBH
+      -- 实例 #16 --
+      Name                       Hyper-V Virtual Switch Extension Adapter
+      AdapterType                以太网 802.3
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                ROOT\VMS_VSMP\0001
+      -- 实例 #17 --
+      Name                       Hyper-V Virtual Ethernet Adapter #2
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      10000000000
+      NetConnectionID            vEthernet (VPNNet)
+      NetEnabled                 True
+      PNPDeviceID                ROOT\VMS_MP\0000
+      -- 实例 #18 --
+      Name                       Hyper-V Virtual Switch Extension Adapter
+      AdapterType                以太网 802.3
+      MACAddress                 <空>
+      Speed                      <空>
+      NetConnectionID            <空>
+      NetEnabled                 <空>
+      PNPDeviceID                ROOT\VMS_VSMP\0002
+      -- 实例 #19 --
+      Name                       Hyper-V Virtual Ethernet Adapter #3
+      AdapterType                以太网 802.3
+      MACAddress                 <已抹除>
+      Speed                      10000000000
+      NetConnectionID            vEthernet (NATNet)
+      NetEnabled                 True
+      PNPDeviceID                ROOT\VMS_MP\0001
+
+  [电池（Win32_Battery）]  root/cimv2:Win32_Battery
+      -> 1 实例  |  9 ms  |  OK
+      查询耗时                       9 ms
+      Name                       HB6081V1ECW-41
+      DeviceID                   1511DYNAPACKHB6081V1ECW-41
+      EstimatedChargeRemaining   100
+      BatteryStatus              2
+      DesignVoltage              16693
+
+==============================================================================
+  4. root\wmi —— 更深命名空间（显示器 EDID / 电池）
+==============================================================================
+
+  [显示器 EDID 身份（型号/厂商/英寸来源）]  root/wmi:WmiMonitorID
+      -> 2 实例  |  333 ms  |  OK
+      查询耗时                       333 ms
+      -- 实例 #1 --
+      InstanceName               DISPLAY\CMN1604\4&9fb62f5&1&UID265988_0
+      ManufacturerName           67, 77, 78, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ProductCodeID              49, 54, 48, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      UserFriendlyName           <空>
+      SerialNumberID             <已抹除>
+      YearOfManufacture          2019
+      -- 实例 #2 --
+      InstanceName               DISPLAY\XMIA011\4&9fb62f5&1&UID198171_0
+      ManufacturerName           88, 77, 73, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ProductCodeID              65, 48, 49, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      UserFriendlyName           82, 101, 100, 109, 105, 32, 50, 49, 53, 32, 78, 70, 0
+      SerialNumberID             <已抹除>
+      YearOfManufacture          2022
+
+  [显示器 物理尺寸（EDID）]  root/wmi:WmiMonitorBasicDisplayParams
+      -> 2 实例  |  9 ms  |  OK
+      查询耗时                       9 ms
+      -- 实例 #1 --
+      InstanceName               DISPLAY\CMN1604\4&9fb62f5&1&UID265988_0
+      MaxHorizontalImageSize     36
+      MaxVerticalImageSize       20
+      -- 实例 #2 --
+      InstanceName               DISPLAY\XMIA011\4&9fb62f5&1&UID198171_0
+      MaxHorizontalImageSize     48
+      MaxVerticalImageSize       26
+
+  [显示器 连接方式]  root/wmi:WmiMonitorConnectionParams
+      -> 2 实例  |  7 ms  |  OK
+      查询耗时                       7 ms
+      -- 实例 #1 --
+      InstanceName               DISPLAY\CMN1604\4&9fb62f5&1&UID265988_0
+      VideoOutputTechnology      2147483648
+      -- 实例 #2 --
+      InstanceName               DISPLAY\XMIA011\4&9fb62f5&1&UID198171_0
+      VideoOutputTechnology      5
+
+  [★ 电池循环次数]  root/wmi:BatteryCycleCount
+      -> 1 实例  |  8 ms  |  OK
+      查询耗时                       8 ms
+      Caption                    <空>
+      Description                <空>
+      Name                       <空>
+      Frequency_Object           <空>
+      Frequency_PerfTime         <空>
+      Frequency_Sys100NS         <空>
+      Timestamp_Object           <空>
+      Timestamp_PerfTime         <空>
+      Timestamp_Sys100NS         <空>
+      Active                     True
+      CycleCount                 324
+      InstanceName               ACPI\PNP0C0A\1_0
+      Tag                        8
+
+  [★ 电池静态数据（含 DesignedCapacity）]  root/wmi:BatteryStaticData
+      -> 0 实例  |  52 ms  |  FAIL: 常规故障 
+      查询耗时                       52 ms
+
+  [★ 电池满充容量]  root/wmi:BatteryFullChargedCapacity
+      -> 1 实例  |  8 ms  |  OK
+      查询耗时                       8 ms
+      Caption                    <空>
+      Description                <空>
+      Name                       <空>
+      Frequency_Object           <空>
+      Frequency_PerfTime         <空>
+      Frequency_Sys100NS         <空>
+      Timestamp_Object           <空>
+      Timestamp_PerfTime         <空>
+      Timestamp_Sys100NS         <空>
+      Active                     True
+      FullChargedCapacity        40706
+      InstanceName               ACPI\PNP0C0A\1_0
+      Tag                        8
+
+  [电池（MS 版）]  root/wmi:MSBatteryStaticData
+      -> 0 实例  |  14 ms  |  FAIL: 无效类 
+      查询耗时                       14 ms
+
+  [电池（MS 满充）]  root/wmi:MSBatteryFullChargedCapacity
+      -> 0 实例  |  12 ms  |  FAIL: 无效类 
+      查询耗时                       12 ms
+
+==============================================================================
+  5. 存储 —— ★通电时间只能走这里
+==============================================================================
+
+  [物理磁盘]  Get-PhysicalDisk
+      -> 1 个  |  3675 ms  |  OK
+      -- 磁盘 #1 --
+      FriendlyName               WDC PC SN730 SDBPNTY-512G-1027
+      Size                       512110190592
+      MediaType                  SSD
+      BusType                    NVMe
+      HealthStatus               Healthy
+
+  [★通电时间]  Get-StorageReliabilityCounter
+      -> FAIL: 无法从客户端中访问 CIM 资源。  (105 ms)
+
+==============================================================================
+  6. ★多显示器：分辨率 / 刷新率 到底按谁报？
+==============================================================================
+
+  [A] Win32_VideoController 报的分辨率（按显卡，不是按显示器）
+      Intel(R) UHD Graphics 620
+        分辨率 = 1920x1080   刷新率 = 60 Hz
+      NVIDIA GeForce MX250
+        分辨率 = x   刷新率 =  Hz
+      Virtual Display Device
+        分辨率 = x   刷新率 =  Hz
+
+  [B] .NET Screen.AllScreens —— 能拿到几块显示器、各自尺寸
+      -> 2 块
+      #1 \\.\DISPLAY1  1920x1080  Primary=True
+      #2 \\.\DISPLAY2  1920x1080  Primary=False
+
+  [C] EnumDisplaySettings —— 逐显示器拿 分辨率 + 刷新率（需要 P/Invoke）
+      #0 Intel(R) UHD Graphics 620
+         DeviceName = \\.\DISPLAY1
+         1920x1080 @ 60 Hz  (32 bit)
+      #1 Intel(R) UHD Graphics 620
+         DeviceName = \\.\DISPLAY2
+         1920x1080 @ 60 Hz  (32 bit)
+
+
+==============================================================================
+  7. 传输开销 —— 「一条命令说清全部」要多久？
+==============================================================================
+      powershell   冷启动 + 3 个查询 = 2118 ms
+      pwsh         冷启动 + 3 个查询 = 1701 ms
+
+==============================================================================
+  探针结束
+==============================================================================
+  总耗时: 13349 ms
+
