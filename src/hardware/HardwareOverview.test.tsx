@@ -39,4 +39,23 @@ describe("HardwareOverview", () => {
     expect(screen.getAllByText("未知")).toHaveLength(11);
     expect(cell("电池")).toHaveAttribute("data-state", "unknown");
   });
+
+  it("renders one line per value in a multi-value field", () => {
+    // 多值行（issue #5）：两条值就是两行，不多不少。
+    const state = closeStream(
+      applyFieldUpdate(initialStreamState, {
+        field: "gpu",
+        values: [
+          { kind: "value", text: "Intel(R) UHD Graphics 620" },
+          { kind: "value", text: "NVIDIA GeForce MX250" },
+        ],
+      }),
+    );
+    render(<HardwareOverview state={state} />);
+
+    const values = cell("显卡").querySelector(".blueprint-value");
+    expect(values?.children).toHaveLength(2);
+    expect(screen.getByText("Intel(R) UHD Graphics 620")).toBeInTheDocument();
+    expect(screen.getByText("NVIDIA GeForce MX250")).toBeInTheDocument();
+  });
 });

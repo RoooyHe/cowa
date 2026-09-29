@@ -10,13 +10,16 @@ import type { FieldUpdate } from "./contract";
 import { HardwareOverview } from "./HardwareOverview";
 import { applyFieldUpdate, closeStream, initialStreamState, type StreamState } from "./stream";
 
-// 夹具里各行的值条数：三条多值行 + 两处单值行（防「把 1 条渲染成 2 条」这种错）。
+// 夹具里各行的值条数：五条多值行（显卡 / 显示器 / 声卡 / 磁盘 / 电池）+ 四条单值行，
+// 防「把 1 条渲染成 2 条」这种错。
 const VALUE_COUNTS: Array<{ label: string; count: number }> = [
   { label: "显卡", count: 2 },
   { label: "显示器", count: 2 },
   { label: "声卡", count: 2 },
   { label: "处理器", count: 1 },
   { label: "网卡", count: 1 },
+  { label: "磁盘", count: 1 },
+  { label: "电池", count: 1 },
 ];
 
 function loadFixture(): FieldUpdate[] {
@@ -82,5 +85,24 @@ describe("HardwareOverview × 真实夹具", () => {
     expect(within(memory).getByText("DDR4")).toBeInTheDocument();
     expect(memory).not.toHaveTextContent("26");
     expect(within(cell("型号信息")).getByText("笔记本")).toBeInTheDocument();
+  });
+
+  it("shows each display's model, device id, inches and per-monitor mode", () => {
+    render(<HardwareOverview state={loadedState()} />);
+
+    const display = cell("显示器");
+    // 设备 ID 原样上屏（`CMN1604`），不翻译成厂商中文名（issue #5「厂商代码表不做」）。
+    expect(within(display).getByText(/CMN1604/)).toBeInTheDocument();
+    expect(within(display).getByText(/XMIA011/)).toBeInTheDocument();
+    expect(display).not.toHaveTextContent("奇美");
+    // 物理英寸来自 EDID 的厘米长宽，逐显示器的分辨率与刷新率来自 EnumDisplaySettings。
+    expect(display).toHaveTextContent("16.2 英寸");
+    expect(display).toHaveTextContent("1920×1080 @ 60Hz");
+  });
+
+  it("shows the battery cycle count", () => {
+    render(<HardwareOverview state={loadedState()} />);
+
+    expect(within(cell("电池")).getByText("324 次循环")).toBeInTheDocument();
   });
 });
