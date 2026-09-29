@@ -45,3 +45,78 @@ describe("窗口默认 800×600（issue #6）", () => {
     expect(tauriConfig.app.windows[0]).toMatchObject({ width: 800, height: 600 });
   });
 });
+
+// 深浅跟随系统的收尾守卫（issue #23）：`装机方案` 与 `硬件概览` 用同一套
+// 颜色令牌，两套调色板都定义齐全，屏上没有任何写死的颜色。
+
+// `App.css` 里全部颜色令牌。深度两套各自定义一次——少一个，某屏在某个
+// 主题下就会用回继承色 / 透明。
+const COLOR_TOKENS = [
+  "--bg",
+  "--line-soft",
+  "--head",
+  "--rule",
+  "--ink",
+  "--ink-dim",
+  "--ink-faint",
+  "--skeleton",
+  "--skeleton-highlight",
+  "--accent",
+  "--accent-edge",
+  "--grid",
+  "--shadow",
+] as const;
+
+// 从 `App.css` 里取一个选择器的声明块。选择器总在行首（前面可能是 `}` 或注释），
+// 这样 `.plan-part` 不会误中 `.plan-parts`。
+function cssRule(css: string, selector: string): string | undefined {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`(?:^|[}\\n])\\s*${escaped}\\s*\\{([^}]*)\\}`));
+  return match?.[1];
+}
+
+describe("深浅跟随系统（issue #23）", () => {
+  it("所有颜色令牌在浅色与深色两套里都定义", () => {
+    for (const token of COLOR_TOKENS) {
+      expect(lightPalette, `浅色缺 ${token}`).toContain(`${token}:`);
+      expect(darkPalette, `深色缺 ${token}`).toContain(`${token}:`);
+    }
+  });
+
+  it("凡是用到的令牌都有定义——没有悬空的 var()", () => {
+    const defined = new Set([...appCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1]));
+    const used = new Set([...appCss.matchAll(/var\((--[a-z0-9-]+)\)/g)].map((match) => match[1]));
+
+    expect(used.size, "一个令牌都没用到——断言会空转").toBeGreaterThan(0);
+    for (const token of used) {
+      expect(defined.has(token), `${token} 被引用但没有定义`).toBe(true);
+    }
+  });
+
+  it("第二屏只用主题令牌上色，不写死颜色", () => {
+    const secondScreenSelectors = [
+      ".build-plans",
+      ".build-plan",
+      ".plan-head",
+      ".plan-name",
+      ".plan-tier",
+      ".plan-price",
+      ".plan-price-label",
+      ".plan-intro",
+      ".plan-parts",
+      ".plan-part",
+      ".plan-part-label",
+      ".plan-part-value",
+    ];
+
+    let colored = 0;
+    for (const selector of secondScreenSelectors) {
+      const block = cssRule(appCss, selector);
+      expect(block, `App.css 里没有 ${selector} 的规则`).not.toBeUndefined();
+      // 颜色必须走 var(--…)：出现十六进制 / rgb / hsl 就是写死，深浅会不同步。
+      expect(block, `${selector} 写死了颜色`).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
+      if (/var\(--/.test(block ?? "")) colored += 1;
+    }
+    expect(colored, "第二屏一条用令牌上色的规则都没有——断言空转").toBeGreaterThan(0);
+  });
+});

@@ -1,10 +1,12 @@
 import { defineConfig } from "vitest/config";
 
-// 采集器的真机集成测试（issue #8）——跑在**当前这台 Windows 机器**上，**不进 CI**。
+// 真机 / 真项目的集成测试（issue #8 采集器、issue #23 装机方案）——**不进 CI**。
 //
 // 默认的 `vitest.config.ts` 只收 `src/**`，所以 `integration/**` 天然落在 CI 之外；
 // 这一份配置单独收 `integration/**`，用朴素的 node 环境（不需要 jsdom / React setup）。
 // 运行方式是 `bun run test:integration`，不是 `bun run test`。
+//
+// 装机方案那组需要 `.env.local` 里的 Supabase 凭据；没配好时会跳过（见 README）。
 export default defineConfig({
   test: {
     environment: "node",

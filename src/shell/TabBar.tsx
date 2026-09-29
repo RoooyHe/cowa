@@ -18,6 +18,7 @@ export function TabBar({ active, onSelect }: TabBarProps) {
           aria-current={screen.id === active ? "page" : undefined}
           onClick={() => onSelect(screen.id)}
         >
+          <screen.Icon className="tab-icon" />
           {screen.label}
         </button>
       ))}

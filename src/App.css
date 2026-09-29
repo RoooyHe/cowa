@@ -18,6 +18,14 @@
   --grid: rgba(12, 17, 22, 0.045);
   --shadow: rgba(12, 17, 22, 0.14);
 
+  /* 悬浮 `标签栏` 的几何（issue #23）：栏距窗口底边、栏的最小高度、内容区底部留白。
+     留白 ≥ 距底 + 栏高（还有余量），两个屏共用同一份，任何内容都不被遮住。
+     用 `min-height` 而不是 `height`：将来标签长高只会把栏擑高，不会把内容裁掉。
+     这三个令牌与主题无关（深浅一个数），所以只定义一次，不进深色那套。 */
+  --tab-bar-inset: 16px;
+  --tab-bar-height: 44px;
+  --tab-bar-clearance: 96px;
+
   color: var(--ink);
   background-color: var(--bg);
   /* 24px 微网格：两根 1px 发丝线各铺一个方向。 */
@@ -65,9 +73,10 @@ body {
   min-height: 100vh;
 }
 
-/* 内容区底部留白：给悬浮 `标签栏` 让出位置，两个屏的内容都不被它遮住。 */
+/* 内容区底部留白：给悬浮 `标签栏` 让出位置，两个屏的内容都不被它遮住。
+   数字来自 `--tab-bar-clearance`，与栏的几何一处定义（issue #23）。 */
 .screen-content {
-  padding-bottom: 96px;
+  padding-bottom: var(--tab-bar-clearance);
 }
 
 /* `hidden` 属性必须真的藏住——别被将来的 `display` 声明盖掉。 */
@@ -80,7 +89,8 @@ body {
 .tab-bar {
   position: fixed;
   left: 50%;
-  bottom: 16px;
+  bottom: var(--tab-bar-inset);
+  min-height: var(--tab-bar-height);
   transform: translateX(-50%);
   z-index: 10;
   display: flex;
@@ -98,9 +108,20 @@ body {
   background: transparent;
   color: var(--ink-dim);
   font: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 18px;
   border-radius: 999px;
   cursor: pointer;
+}
+
+/* 图标继承标签文字色（`currentColor`），自己不写颜色——深浅两套纯跟随
+   `prefers-color-scheme`（issue #23）。 */
+.tab-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
 }
 
 .tab[aria-current="page"] {
