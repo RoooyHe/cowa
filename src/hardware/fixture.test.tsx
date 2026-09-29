@@ -1,14 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-// 真实夹具，与 Rust 的 contract_fixture 测试读同一份文件（见 fixtures/README.md）。
-// 抹除过的实测输出，覆盖全部 12 个 FieldId、多值行、一条并陈。
-import fixtureRaw from "../../fixtures/field-updates.jsonl?raw";
-
-import { FIXED_LABELS, cell } from "../test/blueprint";
-import type { FieldUpdate } from "./contract";
+import { FIXED_FIELDS, ROW_LABELS, cell, fieldCell } from "../test/blueprint";
+import { loadedState } from "../test/fixture";
 import { HardwareOverview } from "./HardwareOverview";
-import { applyFieldUpdate, closeStream, initialStreamState, type StreamState } from "./stream";
 
 // 夹具里各行的值条数：五条多值行（显卡 / 显示器 / 声卡 / 磁盘 / 电池）+ 四条单值行，
 // 防「把 1 条渲染成 2 条」这种错。
@@ -21,20 +16,6 @@ const VALUE_COUNTS: Array<{ label: string; count: number }> = [
   { label: "磁盘", count: 1 },
   { label: "电池", count: 1 },
 ];
-
-function loadFixture(): FieldUpdate[] {
-  return fixtureRaw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line) as FieldUpdate);
-}
-
-function loadedState(): StreamState {
-  let state = initialStreamState;
-  for (const update of loadFixture()) state = applyFieldUpdate(state, update);
-  return closeStream(state);
-}
 
 function valueCount(label: string): number {
   const values = cell(label).querySelector(".blueprint-value");
@@ -50,11 +31,20 @@ describe("HardwareOverview × 真实夹具", () => {
     expect(container.querySelectorAll('[data-region="rows"] [data-field]')).toHaveLength(9);
   });
 
+  it("renders the fixed blueprint's nine row labels in order", () => {
+    render(<HardwareOverview state={loadedState()} />);
+
+    const labels = Array.from(document.querySelectorAll('[data-region="rows"] .blueprint-label')).map(
+      (element) => element.textContent,
+    );
+    expect(labels).toEqual([...ROW_LABELS]);
+  });
+
   it("fills every field of the fixed blueprint", () => {
     render(<HardwareOverview state={loadedState()} />);
 
-    for (const label of FIXED_LABELS) {
-      expect(cell(label)).toHaveAttribute("data-state", "value");
+    for (const field of FIXED_FIELDS) {
+      expect(fieldCell(field)).toHaveAttribute("data-state", "value");
     }
     expect(screen.queryAllByTestId("skeleton")).toHaveLength(0);
     expect(screen.queryByText("未知")).not.toBeInTheDocument();
@@ -84,7 +74,7 @@ describe("HardwareOverview × 真实夹具", () => {
     const memory = cell("内存");
     expect(within(memory).getByText("DDR4")).toBeInTheDocument();
     expect(memory).not.toHaveTextContent("26");
-    expect(within(cell("型号信息")).getByText("笔记本")).toBeInTheDocument();
+    expect(within(fieldCell("model")).getByText("笔记本")).toBeInTheDocument();
   });
 
   it("shows each display's model, device id, inches and per-monitor mode", () => {

@@ -1,8 +1,9 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "cowa",
+  "productName": "cowa 硬件概览",
+  "mainBinaryName": "cowa",
   "version": "0.1.0",
-  "identifier": "com.roy.cowa",
+  "identifier": "io.github.roooyhe.cowa",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +13,7 @@
   "app": {
     "windows": [
       {
-        "title": "cowa",
+        "title": "cowa 硬件概览",
         "width": 800,
         "height": 600
       }

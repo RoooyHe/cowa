@@ -1,7 +1,7 @@
 import { render, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { cell } from "../test/blueprint";
+import { cell, fieldCell } from "../test/blueprint";
 import type { FieldUpdate } from "./contract";
 import { translateEnum } from "./enums";
 import { HardwareOverview } from "./HardwareOverview";
@@ -44,12 +44,12 @@ describe("枚举翻译（issue #4）", () => {
 
   it("PCSystemType 2 渲染成 笔记本", () => {
     renderField(modelWithSystemType(2));
-    expect(within(cell("型号信息")).getByText("笔记本")).toBeInTheDocument();
+    expect(within(fieldCell("model")).getByText("笔记本")).toBeInTheDocument();
   });
 
   it("PCSystemType 1 渲染成 台式机", () => {
     renderField(modelWithSystemType(1));
-    expect(within(cell("型号信息")).getByText("台式机")).toBeInTheDocument();
+    expect(within(fieldCell("model")).getByText("台式机")).toBeInTheDocument();
   });
 
   it("查不到的枚举写 未知，绝不写裸数值", () => {
