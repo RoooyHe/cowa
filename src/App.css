@@ -1,20 +1,29 @@
-/* 固定图纸的结构样式。T3 终端主题（微网格、青绿强调）是 #6 的事，
-   这里只保证 12 个字段在任何状态下都排得下、分得清。 */
+/* T3 终端主题（issue #6）：冷灰底 + 24px 微网格 + 青绿强调 + 等宽字。
+   深浅两套纯跟随 `prefers-color-scheme`——屏上不出现任何切换控件，
+   也不出现快捷键（ADR-0005）。结构样式沿用 #1 的固定图纸。 */
 
 :root {
-  --bg: #f4f5f6;
+  --bg: #eef2f5;
   --panel: #ffffff;
-  --line: #d6dade;
-  --line-soft: #e6e9eb;
-  --ink: #16191c;
-  --ink-dim: #5b636b;
-  --ink-faint: #98a1a9;
-  --skeleton: #dde1e5;
-  --skeleton-highlight: #eef1f3;
+  --line: #c6d1da;
+  --line-soft: #dbe3ea;
+  --ink: #0c1116;
+  --ink-dim: #53606b;
+  --ink-faint: #91a0ac;
+  --skeleton: #d3dde4;
+  --skeleton-highlight: #e8eff4;
   --accent: #0d7f74;
+  --accent-edge: #93cec6;
+  --grid: rgba(12, 17, 22, 0.045);
+
   color: var(--ink);
-  background: var(--bg);
-  font-family: "Segoe UI", system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+  background-color: var(--bg);
+  /* 24px 微网格：两根 1px 发丝线各铺一个方向。 */
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
   font-size: 14px;
   line-height: 20px;
   font-synthesis: none;
@@ -24,16 +33,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14181b;
-    --panel: #1b2024;
-    --line: #2c3338;
-    --line-soft: #232a2f;
-    --ink: #eef2f4;
-    --ink-dim: #a3adb5;
-    --ink-faint: #6b757d;
-    --skeleton: #2b3237;
-    --skeleton-highlight: #394247;
-    --accent: #4fc7b9;
+    --bg: #101316;
+    --panel: #181c21;
+    --line: #2a3037;
+    --line-soft: #1e2429;
+    --ink: #e7ecf1;
+    --ink-dim: #96a1ac;
+    --ink-faint: #5b656e;
+    --skeleton: #2b3239;
+    --skeleton-highlight: #39424b;
+    --accent: #4fd1c0;
+    --accent-edge: #2f6f66;
+    --grid: rgba(231, 236, 241, 0.04);
   }
 }
 
@@ -122,6 +133,7 @@ body {
 
 .value-actual {
   color: var(--accent);
+  border-bottom: 1px solid var(--accent-edge);
 }
 
 .value-unknown {
