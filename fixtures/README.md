@@ -15,7 +15,8 @@
 
 **夹具是契约，不是采集器当前输出。** `collect.ps1` 到 #5 已采完全部 12 个字段
 （三张卡 + 九行），这份夹具与它在参考机器（`HUAWEI HBL-WX9`）上的实测输出一一对应。
-它仍然只是契约：CI 读的是夹具，不是真机——机器无关的采集器集成测试在 issue #8。
+它仍然只是契约：CI 读的是夹具，不是真机——机器无关的采集器集成测试在 issue #8，
+跑在真机上，见 `integration/collector.integration.test.ts`（`bun run test:integration`，不进 CI）。
 
 ## 它从哪来
 

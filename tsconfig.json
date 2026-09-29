@@ -6,6 +6,10 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
+    /* 前端是浏览器上下文：不让 @types/node 的全局（process / Buffer…）悄悄漏进 src。
+       integration/ 需要 node 类型，自己在 integration/tsconfig.json 里开。 */
+    "types": [],
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
