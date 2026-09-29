@@ -73,4 +73,14 @@ describe("HardwareOverview × 真实夹具", () => {
     expect(within(disk).getByText("512GB")).toBeInTheDocument();
     expect(within(disk).getByText("476.9 GiB")).toBeInTheDocument();
   });
+
+  it("translates the fixture's enums on screen", () => {
+    render(<HardwareOverview state={loadedState()} />);
+
+    // 夹具里存的是原始枚举值（`26` / `2`），屏上必须是翻好的字。
+    const memory = cell("内存");
+    expect(within(memory).getByText("DDR4")).toBeInTheDocument();
+    expect(memory).not.toHaveTextContent("26");
+    expect(within(cell("型号信息")).getByText("笔记本")).toBeInTheDocument();
+  });
 });
