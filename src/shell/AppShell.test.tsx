@@ -80,3 +80,70 @@ describe("悬浮 `标签栏` 的样式契约", () => {
     expect(appCss).toMatch(/\.screen-content\s*\{[^}]*padding-bottom/s);
   });
 });
+
+// `App.css` 里三个与主题无关的几何令牌（issue #23）。
+function pxToken(css: string, token: string): number {
+  const match = css.match(new RegExp(`${token}\\s*:\\s*(\\d+)px`));
+  if (!match) throw new Error(`App.css 里没有 ${token} 的 px 值`);
+  return Number(match[1]);
+}
+
+describe("`标签栏` 图标（issue #23）", () => {
+  it("两个标签各带一个内联 SVG 图标，不是 Emoji", () => {
+    renderShell();
+    const tabs = screen.getAllByRole("button");
+    expect(tabs).toHaveLength(2);
+
+    for (const tab of tabs) {
+      const svg = tab.querySelector("svg.tab-icon");
+      expect(svg, "标签缺少 .tab-icon 的 SVG").not.toBeNull();
+      // 有真实图形，不是空壳。
+      expect(svg?.querySelectorAll("path, rect, circle, line, polyline")).not.toHaveLength(0);
+      // 装饰性：不参与无障碍名字，按钮名字仍由文字给。
+      expect(svg?.getAttribute("aria-hidden")).toBe("true");
+    }
+
+    // 禁 Emoji：标签的可见文字里没有任何 Emoji 码点。
+    const visible = tabs.map((tab) => tab.textContent ?? "").join("");
+    expect(visible).not.toMatch(/\p{Extended_Pictographic}/u);
+  });
+
+  it("图标用 currentColor（含子节点），颜色只来自标签文字色——深浅纯跟随系统", () => {
+    renderShell();
+    const icons = Array.from(document.querySelectorAll(".tab-icon"));
+
+    expect(icons).toHaveLength(2);
+    for (const icon of icons) {
+      // 根 svg 与所有子节点的 stroke / fill 都只能是 currentColor 或 none——
+      // 任何一处写死颜色，这条就红。
+      for (const node of [icon, ...icon.querySelectorAll("[stroke], [fill]")]) {
+        for (const attr of ["stroke", "fill"] as const) {
+          const value = node.getAttribute(attr);
+          if (value === null) continue;
+          expect(
+            ["currentColor", "none"],
+            `${node.tagName} 的 ${attr}=${value} 写死了颜色`,
+          ).toContain(value);
+        }
+      }
+    }
+    // 文字色是主题令牌；深浅两套由 App.css 的 prefers-color-scheme 换。
+    expect(appCss).toMatch(/\.tab\s*\{[^}]*color:\s*var\(--/s);
+  });
+});
+
+describe("悬浮 `标签栏` 的留白（issue #23）", () => {
+  it("内容区留白不小于「栏距底 + 栏高」——两个屏都不被遮住", () => {
+    const inset = pxToken(appCss, "--tab-bar-inset");
+    const height = pxToken(appCss, "--tab-bar-height");
+    const clearance = pxToken(appCss, "--tab-bar-clearance");
+
+    expect(clearance).toBeGreaterThanOrEqual(inset + height);
+    // 还留有余量：`min-height` 允许栏长高，余量吸收这部分。
+    expect(clearance - inset - height).toBeGreaterThan(0);
+    // 两个屏共用同一个留白容器与同一个令牌，不存在哪个屏漏了。
+    expect(appCss).toMatch(/\n\.screen-content\s*\{[^}]*padding-bottom:\s*var\(--tab-bar-clearance\)/s);
+    expect(appCss).toMatch(/\.tab-bar\s*\{[^}]*bottom:\s*var\(--tab-bar-inset\)/s);
+    expect(appCss).toMatch(/\.tab-bar\s*\{[^}]*min-height:\s*var\(--tab-bar-height\)/s);
+  });
+});

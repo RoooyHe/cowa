@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p integration/tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:integration": "vitest run --config vitest.integration.config.ts"
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:supabase": "vitest run --config vitest.supabase.integration.config.ts"
   },
   "dependencies": {
     "react": "^19.1.0",
