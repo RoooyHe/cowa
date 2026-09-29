@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import indexHtml from "../../index.html?raw";
+import { SOURCE_FILES } from "../test/sources";
 import { HardwareOverview } from "./HardwareOverview";
 import { applyFieldUpdate, closeStream, initialStreamState } from "./stream";
 
@@ -29,19 +30,14 @@ const INTERACTIVE_SELECTOR = [
   "[role='button']",
 ].join(",");
 
-// 这一屏的全部源码（含 `.ts`——全局键盘监听可能藏在那里）。排除测试自己
-// 与类型声明，否则下面那串禁用名单会把自己测红。
-const SOURCES_ALL = import.meta.glob(
-  ["../**/*.ts", "../**/*.tsx", "!../**/*.test.ts", "!../**/*.test.tsx", "!../vite-env.d.ts"],
-  { query: "?raw", import: "default", eager: true },
-) as Record<string, string>;
-
+// 这一屏的全部源码（含 `.ts`——全局键盘监听可能藏在那里）。共用 `src/test/sources.ts`
+// 的 glob，排除测试自己与类型声明，否则下面那串禁用名单会把自己测红。
 // ADR-0007：放行 `标签栏` 所在的外壳文件。它承载了全应用仅有的两个可点
 // 元素；想加第三个，得先改这份名单并回答 ADR-0007 那一关。
 const SHELL_FILES = ["../shell/TabBar.tsx"];
 
 const SOURCES = Object.fromEntries(
-  Object.entries(SOURCES_ALL).filter(([path]) => !SHELL_FILES.includes(path)),
+  Object.entries(SOURCE_FILES).filter(([path]) => !SHELL_FILES.includes(path)),
 ) as Record<string, string>;
 
 const INTERACTIVE_JSX = INTERACTIVE_TAGS.map((tag) => `<${tag}`);
