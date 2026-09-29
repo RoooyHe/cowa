@@ -39,12 +39,12 @@ function BlueprintCell({ entry, resolved }: { entry: BlueprintEntry; resolved: R
 export function HardwareOverview({ state }: { state: StreamState }) {
   return (
     <main className="hardware-overview">
-      <header className="blueprint-cards">
+      <header className="blueprint-cards" data-region="cards">
         {CARDS.map((entry) => (
           <BlueprintCell key={entry.field} entry={entry} resolved={resolveField(state, entry.field)} />
         ))}
       </header>
-      <div className="blueprint-rows">
+      <div className="blueprint-rows" data-region="rows">
         {ROWS.map((entry) => (
           <BlueprintCell key={entry.field} entry={entry} resolved={resolveField(state, entry.field)} />
         ))}
