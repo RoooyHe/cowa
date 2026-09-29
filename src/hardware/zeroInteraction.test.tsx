@@ -5,13 +5,16 @@ import indexHtml from "../../index.html?raw";
 import { HardwareOverview } from "./HardwareOverview";
 import { applyFieldUpdate, closeStream, initialStreamState } from "./stream";
 
-// ADR-0005：`硬件概览` 是零交互的——屏上没有任何可点元素，也没有快捷键。
+// ADR-0007：零交互收窄为 `硬件概览` 的内容——外壳（`标签栏`）是唯一例外。
 // 这条守卫让那条 ADR 在 CI 里**会红**，而不只是文档里的一句话。
 //
-// 只从外面看得见的地方守：
-//   1. DOM 里没有可交互元素（骨架态与填满态都查）；
-//   2. 源码里没有可交互标签、没有事件绑定、没有全局键盘监听——
+// 从外面看得见的地方守：
+//   1. `硬件概览` 的内容容器里没有可交互元素（骨架态与填满态都查）；
+//   2. 屏内容源码里没有可交互标签、没有事件绑定、没有全局键盘监听——
 //      React 的 `onClick` 不落到 DOM 上，快捷键也只在源码里看得见。
+//
+// 源码扫描放行外壳文件（`标签栏` 所在文件）——那是唯一允许可点元素的
+// 地方；屏内容仍全禁。
 
 // 能点的元素只有这五种。定义一次，DOM 选择器与源码扫描都从它派生——
 // 少一个元素要改的地方就少一处。
@@ -28,9 +31,17 @@ const INTERACTIVE_SELECTOR = [
 
 // 这一屏的全部源码（含 `.ts`——全局键盘监听可能藏在那里）。排除测试自己
 // 与类型声明，否则下面那串禁用名单会把自己测红。
-const SOURCES = import.meta.glob(
+const SOURCES_ALL = import.meta.glob(
   ["../**/*.ts", "../**/*.tsx", "!../**/*.test.ts", "!../**/*.test.tsx", "!../vite-env.d.ts"],
   { query: "?raw", import: "default", eager: true },
+) as Record<string, string>;
+
+// ADR-0007：放行 `标签栏` 所在的外壳文件。它承载了全应用仅有的两个可点
+// 元素；想加第三个，得先改这份名单并回答 ADR-0007 那一关。
+const SHELL_FILES = ["../shell/TabBar.tsx"];
+
+const SOURCES = Object.fromEntries(
+  Object.entries(SOURCES_ALL).filter(([path]) => !SHELL_FILES.includes(path)),
 ) as Record<string, string>;
 
 const INTERACTIVE_JSX = INTERACTIVE_TAGS.map((tag) => `<${tag}`);
@@ -63,20 +74,28 @@ const FILLED = closeStream(
   }),
 );
 
-describe("零交互守卫（ADR-0005）", () => {
-  it("骨架态屏上没有任何可交互元素", () => {
-    const { container } = render(<HardwareOverview state={initialStreamState} />);
+// `硬件概览` 的**内容容器**——DOM 断言只针对它，不针对外壳。
+function hardwareContent(state: typeof initialStreamState): HTMLElement {
+  const { container } = render(<HardwareOverview state={state} />);
+  const content = container.querySelector<HTMLElement>(".hardware-overview");
+  if (!content) throw new Error("no hardware overview content container");
+  return content;
+}
 
-    expect(container.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
+describe("零交互守卫：`硬件概览` 的内容（ADR-0007）", () => {
+  it("骨架态的内容容器里没有任何可交互元素", () => {
+    const content = hardwareContent(initialStreamState);
+
+    expect(content.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
   });
 
-  it("填满态屏上没有任何可交互元素", () => {
-    const { container } = render(<HardwareOverview state={FILLED} />);
+  it("填满态的内容容器里没有任何可交互元素", () => {
+    const content = hardwareContent(FILLED);
 
-    expect(container.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
+    expect(content.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
   });
 
-  it("源码里没有可交互标签", () => {
+  it("屏内容源码里没有可交互标签（外壳已放行）", () => {
     // 先保证 glob 真的扫到了东西——否则下面两条会空转通过。
     expect(Object.keys(SOURCES).length, "glob 一个源文件都没扫到").toBeGreaterThanOrEqual(3);
 
@@ -87,7 +106,7 @@ describe("零交互守卫（ADR-0005）", () => {
     }
   });
 
-  it("源码里没有绑交互事件，也没有全局键盘监听", () => {
+  it("屏内容源码里没有绑交互事件，也没有全局键盘监听", () => {
     for (const [path, source] of Object.entries(SOURCES)) {
       for (const prop of EVENT_PROPS) {
         expect(source, `${path} 绑了 ${prop}`).not.toContain(prop);
