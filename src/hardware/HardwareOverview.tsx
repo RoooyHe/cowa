@@ -1,11 +1,26 @@
-import type { BlueprintEntry, SnapshotValue } from "./contract";
+import type { BlueprintEntry, SnapshotValue, ValuePart } from "./contract";
 import { CARDS, ROWS } from "./contract";
+import { translateEnum } from "./enums";
 import { resolveField, type ResolvedField, type StreamState } from "./stream";
+
+function PartView({ part }: { part: ValuePart }) {
+  if (part.kind === "text") return <>{part.text}</>;
+  // 裸数值绝不上屏：枚举一律走翻译表（issue #4）。
+  return <span className="value-enum">{translateEnum(part.table, part.code)}</span>;
+}
 
 function ValueView({ value }: { value: SnapshotValue }) {
   switch (value.kind) {
     case "value":
       return <span className="value-text">{value.text}</span>;
+    case "parts":
+      return (
+        <span className="value-parts">
+          {value.parts.map((part, index) => (
+            <PartView key={index} part={part} />
+          ))}
+        </span>
+      );
     case "pair":
       return (
         <span className="value-pair">

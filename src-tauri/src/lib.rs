@@ -7,10 +7,32 @@ use tauri::{AppHandle, Emitter, State};
 
 // 采集器 → UI 的契约，与 src/hardware/contract.ts 一一对应。
 // 契约只表达「到了什么」；`骨架` 由 UI 侧从「还没收到」推出来。
+//
+// `enum`（枚举）也是契约里的结构：采集器只吐 WMI 的原始值，翻成人话是 UI 侧
+// `src/hardware/enums.ts` 的事，这样翻译能在没有 Windows 的环境里测。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum EnumTable {
+    MemoryType,
+    SystemType,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum ValuePart {
+    Text { text: String },
+    Enum { table: EnumTable, code: u32 },
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum SnapshotValue {
-    Value { text: String },
+    Value {
+        text: String,
+    },
+    Parts {
+        parts: Vec<ValuePart>,
+    },
     Pair {
         lead: String,
         nominal: String,
@@ -138,7 +160,7 @@ pub fn run() {
 // UI 测试 src/hardware/fixture.test.tsx 读取——契约两侧共用一个事实源。
 #[cfg(test)]
 mod contract_fixture {
-    use super::{FieldId, FieldUpdate, SnapshotValue, COLLECT_SCRIPT};
+    use super::{EnumTable, FieldId, FieldUpdate, SnapshotValue, ValuePart, COLLECT_SCRIPT};
 
     const FIXTURE: &str = include_str!("../../fixtures/field-updates.jsonl");
 
@@ -205,6 +227,56 @@ mod contract_fixture {
     }
 
     #[test]
+    fn fixture_exercises_enum_translation() {
+        // 枚举翻译（#4）：夹具里的内存与型号必须走 `parts` + `enum`，
+        // 而不是采集侧拼好的 `DDR4` —— 否则 UI 侧没有可翻的东西。
+        let updates = updates();
+        let parts: Vec<&ValuePart> = updates
+            .iter()
+            .flat_map(|update| &update.values)
+            .filter_map(|value| match value {
+                SnapshotValue::Parts { parts } => Some(parts),
+                _ => None,
+            })
+            .flatten()
+            .collect();
+        assert!(
+            parts.iter().any(|part| matches!(
+                part,
+                ValuePart::Enum {
+                    table: EnumTable::MemoryType,
+                    code: 26
+                }
+            )),
+            "夹具应当含 `SMBIOSMemoryType = 26`"
+        );
+        assert!(
+            parts.iter().any(|part| matches!(
+                part,
+                ValuePart::Enum {
+                    table: EnumTable::SystemType,
+                    code: 2
+                }
+            )),
+            "夹具应当含 `PCSystemType = 2`"
+        );
+    }
+
+    #[test]
+    fn accepts_enum_parts_in_contract() {
+        let line = r#"{"field":"memory","values":[{"kind":"parts","parts":[{"kind":"text","text":"x "},{"kind":"enum","table":"memoryType","code":26}]}]}"#;
+        let update = serde_json::from_str::<FieldUpdate>(line).expect("parts/enum 是契约内的值");
+        assert!(matches!(update.values[..], [SnapshotValue::Parts { .. }]));
+    }
+
+    #[test]
+    fn rejects_unknown_enum_table() {
+        let line = r#"{"field":"memory","values":[{"kind":"parts","parts":[{"kind":"enum","table":"frontier","code":1}]}]}"#;
+        let parsed = serde_json::from_str::<FieldUpdate>(line);
+        assert!(parsed.is_err(), "契约外的 EnumTable 竟然被接受了：{parsed:?}");
+    }
+
+    #[test]
     fn rejects_field_outside_contract() {
         // 脚本一旦吐出契约外的 FieldId，这里就得红。
         let line = r#"{"field":"frontier","values":[{"kind":"value","text":"x"}]}"#;
@@ -232,7 +304,7 @@ mod contract_fixture {
         // 这条才是 AC 要的：脚本一旦吐出契约外的 FieldId（比如 mainboard -> motherboard），
         // 测试就红。rejects_field_outside_contract 锁的是反序列化行为，这条锁的是脚本本身。
         let emitted = emitted_field_names(COLLECT_SCRIPT);
-        assert!(!emitted.is_empty(), "脚本里一个 Emit-Field 都没解析出来——测试自身失效了");
+        assert!(!emitted.is_empty(), "脚本里一个字段都没解析出来——测试自身失效了");
         for name in emitted {
             assert!(
                 serde_json::from_str::<FieldId>(&format!("\"{name}\"")).is_ok(),
@@ -241,25 +313,57 @@ mod contract_fixture {
         }
     }
 
-    // 抠出脚本里 `Emit-Field '<id>'` / `Emit-Field "<id>"` 的字段名；
-    // `function Emit-Field(...)` 的定义因为下一个字符不是引号，会被跳过。
+    #[test]
+    fn every_field_the_script_emits_has_its_own_budget() {
+        // `查询上限`：每个字段各有一个，不是一个全局值（#4）。
+        // 新加字段却忘了给它上限时，这里就红——不然 Query 会静静降级成 `未知`。
+        let budgets = budget_field_names(COLLECT_SCRIPT);
+        assert!(!budgets.is_empty(), "脚本里没解析出 $BudgetMs——测试自身失效了");
+        for name in emitted_field_names(COLLECT_SCRIPT) {
+            assert!(budgets.contains(&name), "字段 {name} 没有自己的查询上限");
+        }
+    }
+
+    // 抠出脚本里 `Emit-Field '<id>'` / `Collect '<id>'` 的字段名；函数定义因为
+    // 下一个字符不是引号，会被跳过。
     fn emitted_field_names(script: &str) -> Vec<String> {
         let mut names = Vec::new();
-        for (index, _) in script.match_indices("Emit-Field") {
-            let rest = script[index + "Emit-Field".len()..].trim_start();
-            let Some(quote) = rest
-                .chars()
-                .next()
-                .filter(|character| *character == '\'' || *character == '"')
-            else {
-                continue;
-            };
-            let body = &rest[quote.len_utf8()..];
-            if let Some(end) = body.find(quote) {
-                names.push(body[..end].to_string());
+        for token in ["Emit-Field", "Collect"] {
+            for (index, _) in script.match_indices(token) {
+                let rest = script[index + token.len()..].trim_start();
+                let Some(quote) = rest
+                    .chars()
+                    .next()
+                    .filter(|character| *character == '\'' || *character == '"')
+                else {
+                    continue;
+                };
+                let body = &rest[quote.len_utf8()..];
+                if let Some(end) = body.find(quote) {
+                    names.push(body[..end].to_string());
+                }
             }
         }
         names
+    }
+
+    // 抠出 `$BudgetMs = @{ ... }` 里的键。
+    fn budget_field_names(script: &str) -> Vec<String> {
+        let start = script.find("$BudgetMs = @{").expect("脚本里没有 $BudgetMs");
+        let block = &script[start..];
+        let end = block.find('}').unwrap_or(block.len());
+        block[..end]
+            .lines()
+            .filter_map(|line| {
+                let (key, value) = line.trim().split_once('=')?;
+                let key = key.trim();
+                let value = value.trim();
+                let bare = !key.is_empty()
+                    && key.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                    && value.chars().all(|c| c.is_ascii_digit());
+                bare.then(|| key.to_string())
+            })
+            .collect()
     }
 
     #[test]
