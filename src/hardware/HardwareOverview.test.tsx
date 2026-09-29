@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { FIXED_LABELS, cell } from "../test/blueprint";
+import { ROW_LABELS, cell } from "../test/blueprint";
 import { HardwareOverview } from "./HardwareOverview";
 import { applyFieldUpdate, closeStream, initialStreamState } from "./stream";
 
@@ -16,11 +16,15 @@ function stateWithProcessor() {
 
 describe("HardwareOverview", () => {
   it("renders the fixed blueprint, fills the returned field, skeletons the rest", () => {
-    render(<HardwareOverview state={stateWithProcessor()} />);
+    const { container } = render(<HardwareOverview state={stateWithProcessor()} />);
 
-    for (const label of FIXED_LABELS) {
+    for (const label of ROW_LABELS) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
+
+    // 固定图纸：三张卡 + 九行，卡在顶栏、行在对齐表里，顺序不变。
+    expect(container.querySelectorAll('[data-region="cards"] [data-field]')).toHaveLength(3);
+    expect(container.querySelectorAll('[data-region="rows"] [data-field]')).toHaveLength(9);
 
     expect(screen.getByText(PROCESSOR)).toBeInTheDocument();
     expect(cell("处理器")).toHaveAttribute("data-state", "value");
