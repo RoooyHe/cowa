@@ -106,6 +106,15 @@ body {
   overflow-wrap: anywhere;
 }
 
+/* 多值行：每条值各占一行（issue #5「一个含 2 条值的字段渲染出 2 条」）。
+   骨架是 inline-block，别被一起改掉。 */
+.blueprint-value > .value-text,
+.blueprint-value > .value-parts,
+.blueprint-value > .value-pair,
+.blueprint-value > .value-unknown {
+  display: block;
+}
+
 .value-pair .value-lead,
 .value-sep {
   color: var(--ink-dim);

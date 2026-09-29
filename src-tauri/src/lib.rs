@@ -324,6 +324,28 @@ mod contract_fixture {
         }
     }
 
+    #[test]
+    fn device_tree_whitelist_covers_real_bus_prefixes() {
+        // `实例过滤`（#5）：多值行只列 `物理设备`——`PNPDeviceID` 以真实总线前缀
+        // 开头的那些，其余默认排除（ADR-0003）。这里锁住 AC 点名的前缀：白名单
+        // 被清空、或退化成黑名单时红。
+        let prefixes = real_bus_prefixes(COLLECT_SCRIPT);
+        for expected in [
+            "PCI\\",
+            "USB\\",
+            "SCSI\\",
+            "NVME\\",
+            "INTELAUDIO\\",
+            "HDAUDIO\\",
+            "DISPLAY\\",
+        ] {
+            assert!(
+                prefixes.iter().any(|prefix| prefix == expected),
+                "真实总线白名单里缺了 {expected}：{prefixes:?}"
+            );
+        }
+    }
+
     // 抠出脚本里 `Emit-Field '<id>'` / `Collect '<id>'` 的字段名；函数定义因为
     // 下一个字符不是引号，会被跳过。
     fn emitted_field_names(script: &str) -> Vec<String> {
@@ -345,6 +367,23 @@ mod contract_fixture {
             }
         }
         names
+    }
+
+    // 抠出 `$RealBusPrefixes = @( ... )` 里的前缀字符串。
+    fn real_bus_prefixes(script: &str) -> Vec<String> {
+        let start = script
+            .find("$RealBusPrefixes = @(")
+            .expect("脚本里没有 $RealBusPrefixes");
+        let block = &script[start..];
+        let end = block.find(')').unwrap_or(block.len());
+        block[..end]
+            .lines()
+            .filter_map(|line| {
+                let line = line.trim();
+                let inner = line.strip_prefix('\'')?.strip_suffix('\'')?;
+                Some(inner.to_string())
+            })
+            .collect()
     }
 
     // 抠出 `$BudgetMs = @{ ... }` 里的键。
