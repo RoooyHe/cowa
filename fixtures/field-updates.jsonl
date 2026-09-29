@@ -1,0 +1,12 @@
+{"field":"model","values":[{"kind":"value","text":"HUAWEI HBL-WX9"},{"kind":"value","text":"笔记本 · DREAM"}]}
+{"field":"system","values":[{"kind":"value","text":"Windows 11 专业版"},{"kind":"value","text":"64 位 · 内部版本 26200"}]}
+{"field":"uptime","values":[{"kind":"value","text":"7天20小时41分钟33秒"}]}
+{"field":"processor","values":[{"kind":"value","text":"Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz（4 核 / 8 线程）"}]}
+{"field":"mainboard","values":[{"kind":"value","text":"HUAWEI HBL-WX9-PCB"}]}
+{"field":"memory","values":[{"kind":"value","text":"Samsung 16GB DDR4 2400MHz（8GB + 8GB）"}]}
+{"field":"gpu","values":[{"kind":"value","text":"Intel(R) UHD Graphics 620（1024MB / Intel）"},{"kind":"value","text":"NVIDIA GeForce MX250（2048MB / NVIDIA）"}]}
+{"field":"display","values":[{"kind":"value","text":"Huawei PnP Monitor [CMN1604]（16.2 英寸）1920×1080 @ 60Hz"},{"kind":"value","text":"Generic Monitor (Redmi 215 NF) [XMIA011]（21.5 英寸）1920×1080 @ 60Hz"}]}
+{"field":"disk","values":[{"kind":"pair","lead":"WDC PC SN730 SDBPNTY-512G-1027","nominal":"512GB","actual":"476.9 GiB"}]}
+{"field":"sound","values":[{"kind":"value","text":"Realtek High Definition Audio"},{"kind":"value","text":"英特尔(R) 显示器音频"}]}
+{"field":"network","values":[{"kind":"value","text":"Intel(R) Wireless-AC 9560 160MHz"}]}
+{"field":"battery","values":[{"kind":"value","text":"324 次循环"}]}

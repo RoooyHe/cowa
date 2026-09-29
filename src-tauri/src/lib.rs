@@ -133,3 +133,163 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+// 契约测试。夹具是真实探针输出（见 fixtures/README.md），同一份文件也被
+// UI 测试 src/hardware/fixture.test.tsx 读取——契约两侧共用一个事实源。
+#[cfg(test)]
+mod contract_fixture {
+    use super::{FieldId, FieldUpdate, SnapshotValue, COLLECT_SCRIPT};
+
+    const FIXTURE: &str = include_str!("../../fixtures/field-updates.jsonl");
+
+    const ALL_FIELDS: [FieldId; 12] = [
+        FieldId::Model,
+        FieldId::System,
+        FieldId::Uptime,
+        FieldId::Processor,
+        FieldId::Mainboard,
+        FieldId::Memory,
+        FieldId::Gpu,
+        FieldId::Display,
+        FieldId::Disk,
+        FieldId::Sound,
+        FieldId::Network,
+        FieldId::Battery,
+    ];
+
+    fn lines() -> impl Iterator<Item = &'static str> {
+        FIXTURE.lines().map(str::trim).filter(|line| !line.is_empty())
+    }
+
+    fn updates() -> Vec<FieldUpdate> {
+        lines()
+            .map(|line| {
+                serde_json::from_str::<FieldUpdate>(line)
+                    .unwrap_or_else(|error| panic!("夹具里的这一行不是合法的 FieldUpdate：{line}\n{error}"))
+            })
+            .collect()
+    }
+
+    #[test]
+    fn fixture_deserializes_into_snapshot_types() {
+        let updates = updates();
+        assert_eq!(updates.len(), 12, "夹具应当每个字段恰好一行");
+    }
+
+    #[test]
+    fn fixture_covers_every_field_id() {
+        let updates = updates();
+        for field in ALL_FIELDS {
+            assert!(
+                updates.iter().any(|update| update.field == field),
+                "夹具缺少字段 {field:?}"
+            );
+        }
+        assert_eq!(updates.len(), ALL_FIELDS.len(), "夹具里出现了重复字段或契约外的行");
+    }
+
+    #[test]
+    fn fixture_exercises_multi_value_and_pair() {
+        let updates = updates();
+        assert!(
+            updates.iter().any(|update| update.values.len() >= 2),
+            "夹具应当含多值行"
+        );
+        assert!(
+            updates
+                .iter()
+                .flat_map(|update| &update.values)
+                .any(|value| matches!(value, SnapshotValue::Pair { .. })),
+            "夹具应当含一条并陈"
+        );
+    }
+
+    #[test]
+    fn rejects_field_outside_contract() {
+        // 脚本一旦吐出契约外的 FieldId，这里就得红。
+        let line = r#"{"field":"frontier","values":[{"kind":"value","text":"x"}]}"#;
+        let parsed = serde_json::from_str::<FieldUpdate>(line);
+        assert!(parsed.is_err(), "契约外的 FieldId 竟然被接受了：{parsed:?}");
+    }
+
+    #[test]
+    fn rejects_value_outside_contract() {
+        let line = r#"{"field":"processor","values":[{"kind":"guess","text":"x"}]}"#;
+        let parsed = serde_json::from_str::<FieldUpdate>(line);
+        assert!(parsed.is_err(), "契约外的 SnapshotValue 竟然被接受了：{parsed:?}");
+    }
+
+    #[test]
+    fn accepts_unknown_value_in_contract() {
+        // `未知` 是契约里的第三种形态（采集器的主动放弃），夹具里没有它，单独锁一下。
+        let line = r#"{"field":"battery","values":[{"kind":"unknown"}]}"#;
+        let update = serde_json::from_str::<FieldUpdate>(line).expect("未知 是契约内的值");
+        assert!(matches!(update.values[..], [SnapshotValue::Unknown]));
+    }
+
+    #[test]
+    fn every_field_the_script_emits_is_in_the_contract() {
+        // 这条才是 AC 要的：脚本一旦吐出契约外的 FieldId（比如 mainboard -> motherboard），
+        // 测试就红。rejects_field_outside_contract 锁的是反序列化行为，这条锁的是脚本本身。
+        let emitted = emitted_field_names(COLLECT_SCRIPT);
+        assert!(!emitted.is_empty(), "脚本里一个 Emit-Field 都没解析出来——测试自身失效了");
+        for name in emitted {
+            assert!(
+                serde_json::from_str::<FieldId>(&format!("\"{name}\"")).is_ok(),
+                "脚本吐出了契约外的 FieldId：{name}"
+            );
+        }
+    }
+
+    // 抠出脚本里 `Emit-Field '<id>'` / `Emit-Field "<id>"` 的字段名；
+    // `function Emit-Field(...)` 的定义因为下一个字符不是引号，会被跳过。
+    fn emitted_field_names(script: &str) -> Vec<String> {
+        let mut names = Vec::new();
+        for (index, _) in script.match_indices("Emit-Field") {
+            let rest = script[index + "Emit-Field".len()..].trim_start();
+            let Some(quote) = rest
+                .chars()
+                .next()
+                .filter(|character| *character == '\'' || *character == '"')
+            else {
+                continue;
+            };
+            let body = &rest[quote.len_utf8()..];
+            if let Some(end) = body.find(quote) {
+                names.push(body[..end].to_string());
+            }
+        }
+        names
+    }
+
+    #[test]
+    fn fixture_has_no_serial_numbers_or_mac_addresses() {
+        // 抹除是入库的前置条件（#3）。序列号没法通用识别，这里挡住最容易复发的：
+        // MAC 形态，以及探针里的抹除占位符与敏感字段名。
+        assert!(!FIXTURE.contains("已抹除"), "夹具里还留着抹除占位符");
+        for sensitive in ["SerialNumber", "IdentifyingNumber", "MACAddress", "PNPDeviceID"] {
+            assert!(!FIXTURE.contains(sensitive), "夹具里混进了 {sensitive}");
+        }
+        for line in lines() {
+            assert!(!contains_mac(line), "夹具里混进了 MAC 地址：{line}");
+        }
+    }
+
+    // 六个两字符十六进制组、以 `:` 或 `-` 分隔。`2026-09-28` 这类日期组不够六组，不会误伤。
+    fn contains_mac(text: &str) -> bool {
+        let chars: Vec<char> = text.chars().collect();
+        const WINDOW: usize = 17;
+        (0..chars.len().saturating_sub(WINDOW - 1)).any(|start| {
+            let window = &chars[start..start + WINDOW];
+            let separator = window[2];
+            (separator == ':' || separator == '-')
+                && window.iter().enumerate().all(|(index, character)| {
+                    if index % 3 == 2 {
+                        *character == separator
+                    } else {
+                        character.is_ascii_hexdigit()
+                    }
+                })
+        })
+    }
+}

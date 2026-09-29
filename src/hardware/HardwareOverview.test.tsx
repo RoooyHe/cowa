@@ -1,37 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { FIXED_LABELS, cell } from "../test/blueprint";
 import { HardwareOverview } from "./HardwareOverview";
 import { applyFieldUpdate, closeStream, initialStreamState } from "./stream";
 
 const PROCESSOR = "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz";
-
-const FIXED_LABELS = [
-  "型号信息",
-  "系统信息",
-  "运行时间",
-  "处理器",
-  "主板",
-  "内存",
-  "显卡",
-  "显示器",
-  "磁盘",
-  "声卡",
-  "网卡",
-  "电池",
-];
 
 function stateWithProcessor() {
   return applyFieldUpdate(initialStreamState, {
     field: "processor",
     values: [{ kind: "value", text: PROCESSOR }],
   });
-}
-
-function cell(label: string): HTMLElement {
-  const found = screen.getByText(label).closest<HTMLElement>("[data-field]");
-  if (!found) throw new Error(`no blueprint cell for ${label}`);
-  return found;
 }
 
 describe("HardwareOverview", () => {
