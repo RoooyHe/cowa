@@ -42,7 +42,7 @@ function PlanCard({ plan }: { plan: BuildPlan }) {
 // 无错误文案（ADR-0009）。
 export function BuildPlans({ plans }: { plans: readonly BuildPlan[] }) {
   return (
-    <ul className="build-plans">
+    <ul className="build-plans" data-plan-count={plans.length}>
       {plans.map((plan, index) => (
         <PlanCard key={index} plan={plan} />
       ))}

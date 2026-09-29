@@ -18,7 +18,7 @@ function renderShell() {
     <AppShell
       content={{
         hardware: <HardwareOverview state={initialStreamState} />,
-        "build-plans": <BuildPlansScreen />,
+        "build-plans": <BuildPlansScreen plans={[]} />,
       }}
     />,
   );
