@@ -146,6 +146,89 @@ body {
   color: var(--ink-faint);
 }
 
+/* `装机方案`（issue #22）：一列纵向滚动的文本卡，无二级详情。
+   卡片之间用发丝线分隔，不用阴影——和 `硬件概览` 的排版语言一致。 */
+.build-plans {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 0 24px;
+  list-style: none;
+}
+
+.build-plan {
+  padding: 18px 26px 20px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.plan-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 12px;
+}
+
+.plan-name {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.plan-tier {
+  color: var(--ink-dim);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 0 9px;
+  font-size: 0.85em;
+}
+
+.plan-price {
+  margin-left: auto;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.plan-price-label {
+  color: var(--ink-faint);
+  margin-right: 6px;
+}
+
+.plan-intro {
+  margin: 8px 0 12px;
+  color: var(--ink-dim);
+}
+
+.plan-parts {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.plan-part {
+  display: flex;
+  align-items: baseline;
+}
+
+.plan-part-label {
+  width: 92px;
+  flex: none;
+  padding: 3px 16px 3px 0;
+  color: var(--ink-dim);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.plan-part-value {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 3px 0 3px 16px;
+  overflow-wrap: anywhere;
+}
+
 /* 九行：一张连续的对齐表 */
 .blueprint-rows {
   display: flex;
