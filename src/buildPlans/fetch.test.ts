@@ -3,8 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadBuildPlanRows, loadBuildPlans } from "../test/buildPlans";
 import { fetchBuildPlans, type FetchLike } from "./fetch";
 
-// 取数的唯一缝（issue #21）：`fetchBuildPlans` 是**唯一**碰网络与环境变量的地方，
-// 所以组件测试里既没有 Supabase 也没有网络。见 ADR-0008 / ADR-0009。
+// 取数的唯一缝（issue #21）：`fetchBuildPlans` 是**唯一**发起网络请求的地方
+// （环境变量在 `useBuildPlans` 读入），所以组件测试里既没有 Supabase 也没有网络。
+// 见 ADR-0008 / ADR-0009。
 //
 // 依赖（fetch / 超时）全部注入，测试不打桩全局，也不碰真项目。
 

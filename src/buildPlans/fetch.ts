@@ -2,7 +2,8 @@ import { toBuildPlans, type BuildPlan, type BuildPlanRow } from "./contract";
 
 // Supabase 取数（issue #21）。见 ADR-0008（客户端只读直连）、ADR-0009（启动一次、取不到即空）。
 //
-// 这是**唯一**碰网络与环境变量的地方。它不抛：失败 / 超时 / 空表都归空数组——
+// 这是**唯一**发起网络请求的地方；环境变量由 `useBuildPlans.supabaseConfig`
+// 读入后传进来。它不抛：失败 / 超时 / 空表都归空数组——
 // 信使不为空缺编故事，屏上也就没有错误文案（ADR-0009）。
 //
 // 没有自建后端：一条 REST GET，anon key + RLS 在服务端只放行 `published = true`。
@@ -12,7 +13,7 @@ import { toBuildPlans, type BuildPlan, type BuildPlanRow } from "./contract";
 // 的过滤是 RLS 的活，不在客户端拼 `eq`。
 const BUILD_PLANS_URL = "/rest/v1/build_plans?select=*&order=sort.asc";
 
-// `查询上限`（CONTEXT.md）：超时就不再等，这一屏为空。**不重试**（ADR-0009）。
+// 网络上限：超时就不再等，这一屏为空（ADR-0009 的「超时 → 空」）。**不重试**。
 const TIMEOUT_MS = 5000;
 
 export type BuildPlansConfig = {

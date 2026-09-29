@@ -37,7 +37,7 @@ export function useBuildPlans(): BuildPlan[] {
 
 // URL 与 anon key 在构建期由 Vite 注入（VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY）。
 // anon key 内嵌进安装包不是问题：它只给读，草稿由 RLS 挡在服务端（ADR-0008）。
-export function supabaseConfig(): BuildPlansConfig {
+function supabaseConfig(): BuildPlansConfig {
   return {
     url: import.meta.env.VITE_SUPABASE_URL,
     anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
