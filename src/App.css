@@ -1,6 +1,6 @@
 /* T3 终端主题（issue #6）：冷灰底 + 24px 微网格 + 青绿强调 + 等宽字。
    深浅两套纯跟随 `prefers-color-scheme`——屏上不出现任何切换控件，
-   也不出现快捷键（ADR-0005）。结构样式沿用 #1 的固定图纸。 */
+   也不出现快捷键（ADR-0007）。结构样式沿用 #1 的固定图纸。 */
 
 :root {
   --bg: #eef2f5;
@@ -16,6 +16,7 @@
   --accent: #0d7f74;
   --accent-edge: #93cec6;
   --grid: rgba(12, 17, 22, 0.045);
+  --shadow: rgba(12, 17, 22, 0.14);
 
   color: var(--ink);
   background-color: var(--bg);
@@ -46,6 +47,7 @@
     --accent: #4fd1c0;
     --accent-edge: #2f6f66;
     --grid: rgba(231, 236, 241, 0.04);
+    --shadow: rgba(0, 0, 0, 0.55);
   }
 }
 
@@ -55,6 +57,57 @@
 
 body {
   margin: 0;
+}
+
+/* `应用外壳`（ADR-0007）：底部悬浮的 `标签栏` + 当前 `屏幕` 的内容。
+   外壳是全应用唯一允许有可点元素的地方。 */
+.app-shell {
+  min-height: 100vh;
+}
+
+/* 内容区底部留白：给悬浮 `标签栏` 让出位置，两个屏的内容都不被它遮住。 */
+.screen-content {
+  padding-bottom: 96px;
+}
+
+/* `hidden` 属性必须真的藏住——别被将来的 `display` 声明盖掉。 */
+.screen-content[hidden] {
+  display: none;
+}
+
+/* `标签栏`：底部悬浮。只用主题令牌着色，所以深浅两套纯跟随
+   `prefers-color-scheme`——栏上没有主题切换控件（ADR-0007）。 */
+.tab-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: var(--head);
+  box-shadow: 0 6px 20px var(--shadow);
+}
+
+.tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  font: inherit;
+  padding: 6px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.tab[aria-current="page"] {
+  background: var(--bg);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--accent-edge);
 }
 
 .hardware-overview {
