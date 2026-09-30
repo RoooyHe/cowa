@@ -53,11 +53,13 @@ type RawRow = { id: string; sort: number; published: boolean; name: string };
 
 // 绕开生产取数、直接打 REST：这样才能观察 RLS 在**服务端**的行为。
 // 生产路径（`fetchBuildPlans`）不拼 `published` 过滤，全靠 RLS——这里就是验它。
+//
+// 只发 `apikey`：新版 publishable key 不是 JWT，放 `Authorization: Bearer` 会被
+// PostgREST 当坏 JWT 拒掉（PGRST301）——与生产取数（fetch.ts）保持同一种头。
 async function rawRows(query: string): Promise<RawRow[]> {
   const response = await fetch(`${url.replace(/\/+$/, "")}/rest/v1/build_plans?${query}`, {
     headers: {
       apikey: anonKey,
-      Authorization: `Bearer ${anonKey}`,
       Accept: "application/json",
     },
   });

@@ -52,7 +52,7 @@ describe("装机方案取数（issue #21 / ADR-0008 / ADR-0009）", () => {
     expect(plans.map((plan) => plan.name)).toEqual(loadBuildPlans().map((plan) => plan.name));
   });
 
-  it("查询形状：`?select=*&order=sort.asc`，anon key 走 apikey 与 Bearer", async () => {
+  it("查询形状：`?select=*&order=sort.asc`，key 只走 `apikey` 头", async () => {
     const fetchImpl = okFetch();
 
     await fetchBuildPlans(CONFIG, { fetchImpl });
@@ -61,11 +61,24 @@ describe("装机方案取数（issue #21 / ADR-0008 / ADR-0009）", () => {
     const [url, init] = callArgs(fetchImpl);
     expect(url).toBe(EXPECTED_URL);
     expect(init.method).toBe("GET");
-    expect(init.headers).toMatchObject({
+    // 精确相等（不是子集）：多一个头就红。
+    expect(init.headers).toEqual({
       apikey: CONFIG.anonKey,
-      Authorization: `Bearer ${CONFIG.anonKey}`,
       Accept: "application/json",
     });
+  });
+
+  it("新版 publishable key 不是 JWT：绝不放 `Authorization: Bearer`（否则 PGRST301）", async () => {
+    const fetchImpl = okFetch();
+    const publishable = "sb_publishable_example_000000000000000000000";
+
+    await fetchBuildPlans({ url: "https://proj.supabase.co", anonKey: publishable }, { fetchImpl });
+
+    const [, init] = callArgs(fetchImpl);
+    const headers = (init.headers ?? {}) as Record<string, string>;
+    expect(headers.apikey).toBe(publishable);
+    // publishable / secret key 不是 JWT；扔进 Authorization 会被 PostgREST 当坏 JWT 拒掉。
+    expect(headers).not.toHaveProperty("Authorization");
   });
 
   it("base URL 末尾的斜杠不拼出双斜杠", async () => {
