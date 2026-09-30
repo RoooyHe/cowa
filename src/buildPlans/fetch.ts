@@ -6,8 +6,21 @@ import { toBuildPlans, type BuildPlan, type BuildPlanRow } from "./contract";
 // 读入后传进来。它不抛：失败 / 超时 / 空表都归空数组——
 // 信使不为空缺编故事，屏上也就没有错误文案（ADR-0009）。
 //
-// 没有自建后端：一条 REST GET，anon key + RLS 在服务端只放行 `published = true`。
+// 没有自建后端：一条 REST GET，publishable key + RLS 在服务端只放行 `published = true`。
 // 因此**不引入** `@supabase/supabase-js`。
+
+// 查询只带 `apikey` 一个凭证头。
+//
+// Supabase 新版的 publishable key（`sb_publishable_...`）**不是 JWT**：它只认
+// `apikey` 头，扔进 `Authorization: Bearer` 会被 PostgREST 当坏 JWT 拒掉
+// （PGRST301 Invalid JWT parts），于是取数失败、第二屏永远空。
+//
+// 不带 `Authorization` 也不影响 RLS：PostgREST 没有用户 JWT 时就落到
+// `db-anon-role`（即 `anon`），正是我们要的角色。V2 没有登录（ADR-0008）。
+const REQUEST_HEADERS = (anonKey: string): Record<string, string> => ({
+  apikey: anonKey,
+  Accept: "application/json",
+});
 
 // 表与查询形状锁在这里：`?select=*&order=sort.asc`（issue #21）。`published`
 // 的过滤是 RLS 的活，不在客户端拼 `eq`。
@@ -54,11 +67,7 @@ export async function fetchBuildPlans(
     const fetchImpl = deps.fetchImpl ?? (fetch as unknown as FetchLike);
     const response = await fetchImpl(endpoint(url), {
       method: "GET",
-      headers: {
-        apikey: anonKey,
-        Authorization: `Bearer ${anonKey}`,
-        Accept: "application/json",
-      },
+      headers: REQUEST_HEADERS(anonKey),
       signal: controller.signal,
     });
 

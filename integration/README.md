@@ -21,7 +21,8 @@ bun run test:integration:supabase     # 只跑装机方案一组，且**要求**
 
 ### 装机方案一组
 
-配置方式：把 `.env.example` 复制成 `.env.local` 并填入测试项目的 URL 与 anon key。
+配置方式：把 `.env.example` 复制成 `.env.local` 并填入测试项目的 URL 与
+**publishable key**（`sb_publishable_...`，即新版「anon key」；不要填 `sb_secret_...`）。
 这一组需要项目里**至少有一条 `published = true` 的方案**——否则「只回 published」
 「按 sort 排序」会空洞通过，测试会直接报红提醒。
 
